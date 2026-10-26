@@ -1,0 +1,29 @@
+# ==============================================================
+# suryaenterprise (Laravel 13, PHP 8.4) — Dev Harbor project compose
+# Standard Laravel layout: front controller is public/index.php.
+# composer.lock pulls Symfony 8 (needs PHP >= 8.4.1), hence php84-fpm,
+# built from dev-harbor/base-images/Dockerfile with FROM php:8.4-fpm.
+# ==============================================================
+
+networks:
+  dev-network:
+    external: true
+    name: dev-network
+
+services:
+  # ── PHP-FPM App ─────────────────────────────────────────────
+  suryaenterprise-app:
+    image: devharbor/php84-fpm:latest
+    container_name: suryaenterprise-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    networks:
+      - dev-network
+    labels:
+      devharbor.enable: "true"
+      devharbor.host:   "suryaenterprise.test"
+      devharbor.type:   "laravel"
+      devharbor.php:    "suryaenterprise-app"
+      devharbor.root:   "/var/www/projects/suryaenterprise/public"

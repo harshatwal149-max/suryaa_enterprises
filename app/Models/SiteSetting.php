@@ -57,4 +57,15 @@ class SiteSetting extends Model
         'default_meta_robots',
         'seo_og_image_path',
     ];
+
+    /**
+     * WhatsApp number as digits with country code, ready for wa.me links.
+     * Numbers are stored as 10-digit Indian mobiles, so 91 is prefixed.
+     */
+    public function whatsappDigits(): string
+    {
+        $digits = preg_replace('/\D+/', '', (string) $this->whatsapp_number);
+
+        return strlen($digits) === 10 ? '91' . $digits : $digits;
+    }
 }

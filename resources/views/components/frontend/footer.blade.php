@@ -41,19 +41,7 @@ $mapUrl = trim((string) ($siteSettings?->map_embed_url ?? ''));
 
         {{-- COLUMN 1: COMPANY --}}
         <div class="footer-about">
-            <a href="{{ route('home') }}"
-                class="footer-logo"
-                aria-label="{{ $siteName }} home">
-
-                @if($siteSettings?->logo_path)
-                <img
-                    src="{{ asset('storage/' . $siteSettings->logo_path) }}"
-                    alt="{{ $siteName }}"
-                    loading="lazy">
-                @else
-                <span>{{ $siteName }}</span>
-                @endif
-            </a>
+            <x-frontend.logo variant="light" class="footer-logo" />
 
             <p class="footer-description">
                 {{ $siteSettings?->footer_description
