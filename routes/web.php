@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Admin\EnquiryController as AdminEnquiryController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 
+use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\ProductController as FrontendProductController;
 use App\Http\Controllers\Frontend\TestimonialController as FrontendTestimonialController;
 
@@ -30,24 +31,10 @@ use App\Models\Product;
 */
 
 // Homepage
-Route::get('/', function () {
-    $slides = HeroSlide::where('is_active', true)
-        ->orderBy('sort_order')
-        ->get();
-
-    $products = Product::where('is_active', true)
-        ->latest()
-        ->take(8)
-        ->get();
-
-    $settings = SiteSetting::first();
-
-    return view('welcome', compact(
-        'slides',
-        'products',
-        'settings'
-    ));
-})->name('home');
+Route::get('/', [
+    HomeController::class,
+    'index'
+])->name('home');
 
 
 // About Us

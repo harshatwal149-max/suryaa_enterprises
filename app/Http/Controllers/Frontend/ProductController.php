@@ -12,14 +12,30 @@ use Illuminate\View\View;
 
 class ProductController extends Controller
 {
-    /** Display active products with optional AJAX-compatible search and filtering. */
+    /** Price the customer pays: the discount price when it is a real discount. */
+    private const EFFECTIVE_PRICE = 'CASE WHEN discount_price > 0 AND discount_price < price THEN discount_price ELSE price END';
+
+    /** Sort options shown on the listing page, keyed by query value. */
+    public const SORT_OPTIONS = [
+        'latest' => 'Latest',
+        'price_asc' => 'Price: Low to High',
+        'price_desc' => 'Price: High to Low',
+        'discount' => 'Biggest Discount',
+        'name' => 'Name: A to Z',
+    ];
+
+    /** Display active products with search, filters and sorting (AJAX-compatible). */
     public function index(Request $request): View
     {
+        $activeProducts = fn ($query) => $query->where('is_active', true);
+
         $categories = Category::query()
+            ->whereHas('products', $activeProducts)
+            ->withCount(['products' => $activeProducts])
             ->orderBy('name')
             ->get();
 
-        $query = Product::with(['category', 'subcategory'])
+        $query = Product::with('category')
             ->where('is_active', true);
 
         // Search product name, brand, SKU, and description.
@@ -39,22 +55,51 @@ class ProductController extends Controller
             $query->where('category_id', $request->input('category'));
         }
 
+        // Price range on the price the customer actually pays.
+        if (is_numeric($request->input('min_price'))) {
+            $query->whereRaw(self::EFFECTIVE_PRICE . ' >= ?', [(float) $request->input('min_price')]);
+        }
+
+        if (is_numeric($request->input('max_price'))) {
+            $query->whereRaw(self::EFFECTIVE_PRICE . ' <= ?', [(float) $request->input('max_price')]);
+        }
+
+        if ($request->boolean('on_sale')) {
+            $query->where('discount_price', '>', 0)
+                ->whereColumn('discount_price', '<', 'price');
+        }
+
+        if ($request->boolean('in_stock')) {
+            $query->where('quantity', '>', 0);
+        }
+
+        $sort = array_key_exists((string) $request->input('sort'), self::SORT_OPTIONS)
+            ? (string) $request->input('sort')
+            : 'latest';
+
+        match ($sort) {
+            'price_asc' => $query->orderByRaw(self::EFFECTIVE_PRICE . ' ASC'),
+            'price_desc' => $query->orderByRaw(self::EFFECTIVE_PRICE . ' DESC'),
+            'discount' => $query->orderByRaw('CASE WHEN discount_price > 0 AND discount_price < price THEN (price - discount_price) / price ELSE 0 END DESC'),
+            'name' => $query->orderBy('name'),
+            default => $query->latest(),
+        };
+
         $products = $query
-            ->latest()
             ->paginate(12)
             ->withQueryString();
 
-        // WhatsApp number is used by product cards.
-        $settings = SiteSetting::first();
-        $whatsappNumber = preg_replace(
-            '/\D+/',
-            '',
-            (string) ($settings?->whatsapp_number ?? '')
-        );
+        $totalProducts = Product::where('is_active', true)->count();
+        $sortOptions = self::SORT_OPTIONS;
+
+        $whatsappNumber = SiteSetting::first()?->whatsappDigits() ?? '';
 
         return view('Products.index', compact(
             'products',
             'categories',
+            'totalProducts',
+            'sort',
+            'sortOptions',
             'whatsappNumber'
         ));
     }
@@ -80,14 +125,9 @@ class ProductController extends Controller
             ->take(4)
             ->get();
 
-        $settings = SiteSetting::first();
-        $whatsappNumber = preg_replace(
-            '/\D+/',
-            '',
-            (string) ($settings?->whatsapp_number ?? '')
-        );
+        $whatsappNumber = SiteSetting::first()?->whatsappDigits() ?? '';
 
-        return view('products.show', compact(
+        return view('Products.show', compact(
             'product',
             'relatedProducts',
             'whatsappNumber'

@@ -29,8 +29,10 @@ $hideFloatingButtons = request()->routeIs('testimonials.create');
 
     <title>@yield('title', $siteSettings?->seo_title ?: $siteName)</title>
 
-    @if($siteSettings?->favicon_path)
+    @if($siteSettings?->favicon_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($siteSettings->favicon_path))
     <link rel="icon" href="{{ asset('storage/' . $siteSettings->favicon_path) }}">
+    @else
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/logo-mark.svg') }}">
     @endif
 
     @if($siteSettings?->seo_description)
@@ -93,113 +95,6 @@ $hideFloatingButtons = request()->routeIs('testimonials.create');
             max-width: 100%;
         }
 
-        /* Restore the contact/social topbar and keep it above the main header. */
-        .top-contact-bar {
-            display: block !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            width: 100% !important;
-            min-height: 42px;
-            height: auto;
-            z-index: 10001 !important;
-            background: var(--primary-color, #047857) !important;
-            color: #ffffff !important;
-        }
-
-        /* Keep the main navigation fixed during scrolling, below the topbar. */
-        .site-header,
-        #site-header,
-        .header-area {
-            position: fixed !important;
-            top: 42px !important;
-            left: 0 !important;
-            right: 0 !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            z-index: 10000 !important;
-            background: var(--header-bg-color, #ffffff) !important;
-            opacity: 1 !important;
-            box-shadow: 0 2px 14px rgba(0, 0, 0, 0.08) !important;
-            transform: none !important;
-            transition: none !important;
-            animation: none !important;
-        }
-
-        .site-header-wrapper {
-            position: static !important;
-            transform: none !important;
-        }
-
-        .site-header {
-            margin: 0 !important;
-        }
-
-        .site-header .header-inner {
-            background-color: var(--header-bg-color, #ffffff) !important;
-        }
-
-        /* Header Inner Structure */
-        .site-header {
-            width: 100%;
-            padding: 14px 40px;
-            color: var(--header-text-color);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-        }
-
-        .header-inner {
-            max-width: 1200px;
-            min-height: 60px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 24px;
-        }
-
-        .site-logo {
-            display: inline-flex;
-            align-items: center;
-            min-width: 0;
-            text-decoration: none;
-        }
-
-        .site-logo img {
-            display: block;
-            max-width: 220px;
-            max-height: 80px;
-            width: auto;
-            height: auto;
-            object-fit: contain;
-        }
-
-        .site-name {
-            color: var(--header-text-color);
-            font-size: 24px;
-            font-weight: 700;
-        }
-
-        .site-nav {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            flex-wrap: wrap;
-            gap: 22px;
-        }
-
-        .site-nav a {
-            color: var(--header-text-color);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-            transition: color 0.2s ease;
-        }
-
-        .site-nav a:hover {
-            color: var(--primary-color);
-        }
-
         /* Main content */
         .site-main {
             min-height: 50vh;
@@ -208,7 +103,6 @@ $hideFloatingButtons = request()->routeIs('testimonials.create');
             width: 100%;
             max-width: 100%;
             min-width: 0;
-            padding-top: 152px;
         }
 
         .site-main > * {
@@ -308,54 +202,6 @@ $hideFloatingButtons = request()->routeIs('testimonials.create');
             overflow-wrap: anywhere;
         }
 
-        /* Top contact bar */
-        .top-contact-bar {
-            background-color: var(--primary-color, #047857) !important;
-            color: #ffffff !important;
-            position: relative;
-            z-index: 1001;
-        }
-
-        .top-contact-inner {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 28px;
-            padding: 8px 4%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .top-contact-details {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px 26px;
-            min-width: 0;
-        }
-
-        .top-contact-item {
-            display: inline-flex;
-            align-items: center;
-            gap: 9px;
-            color: inherit;
-            font-size: 13px;
-            line-height: 1.6;
-            text-decoration: none;
-        }
-
-        .top-contact-item i {
-            flex-shrink: 0;
-        }
-
-        .top-contact-socials {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            flex-shrink: 0;
-            gap: 19px;
-        }
-
         .top-social-icon {
             display: inline-flex;
             align-items: center;
@@ -423,76 +269,7 @@ $hideFloatingButtons = request()->routeIs('testimonials.create');
             cursor: pointer;
         }
 
-        /* Responsive */
-        @media (max-width: 900px) {
-            .top-contact-inner {
-                padding-right: 22px;
-                padding-left: 22px;
-                flex-wrap: wrap;
-                gap: 12px 20px;
-            }
-
-            .top-contact-details {
-                gap: 10px 18px;
-            }
-
-            .site-header {
-                padding-right: 24px;
-                padding-left: 24px;
-            }
-
-            .header-inner {
-                gap: 18px;
-            }
-
-            .site-nav {
-                gap: 16px;
-            }
-        }
-
         @media (max-width: 700px) {
-            .site-header {
-                padding: 14px 18px;
-            }
-
-            .top-contact-bar {
-                max-height: 88px;
-                overflow-y: auto;
-            }
-
-            .site-header,
-            #site-header,
-            .header-area {
-                top: 88px !important;
-            }
-
-            .site-main {
-                padding-top: 190px;
-            }
-
-            .header-inner {
-                flex-direction: column;
-                justify-content: center;
-                gap: 16px;
-            }
-
-            .site-logo img {
-                max-width: 190px;
-                max-height: 65px;
-            }
-
-            .site-name {
-                font-size: 21px;
-            }
-
-            .site-nav {
-                justify-content: center;
-                gap: 12px 18px;
-            }
-
-            .site-nav a {
-                font-size: 13px;
-            }
 
             .footer-container {
                 grid-template-columns: 1fr;
@@ -502,65 +279,6 @@ $hideFloatingButtons = request()->routeIs('testimonials.create');
             .footer-map iframe {
                 height: 220px;
             }
-
-            .top-contact-inner {
-                flex-direction: column;
-                align-items: flex-start;
-                padding: 12px 16px;
-                gap: 12px;
-            }
-
-            .top-contact-details {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 9px;
-                width: 100%;
-            }
-
-            .top-contact-item {
-                max-width: 100%;
-                overflow-wrap: anywhere;
-            }
-
-            .top-contact-socials {
-                justify-content: flex-start;
-                gap: 20px;
-            }
-        }
-
-        @media (max-width: 380px) {
-            .site-header {
-                padding-right: 12px;
-                padding-left: 12px;
-            }
-
-            .site-main {
-                padding-top: 180px;
-            }
-
-            .site-nav {
-                gap: 10px 14px;
-            }
-
-            .top-contact-inner {
-                padding-right: 12px;
-                padding-left: 12px;
-            }
-        }
-
-        /* Admin-controlled theme colors */
-        .top-contact-bar .top-contact-item,
-        .top-contact-bar .top-contact-item a,
-        .top-contact-bar .top-contact-item span,
-        .top-contact-bar .top-contact-item i {
-            color: inherit !important;
-        }
-
-        .site-header .site-name,
-        .site-header .site-nav a,
-        .site-header .site-logo,
-        .site-header .site-logo span {
-            color: var(--header-text-color, #292524) !important;
         }
 
         .site-footer .footer-container h3,
