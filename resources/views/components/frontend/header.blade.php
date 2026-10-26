@@ -29,6 +29,8 @@
     ];
 @endphp
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" referrerpolicy="no-referrer">
+
 <style>
     /* Suryaa Enterprises header and contact bar */
     .top-contact-bar,
@@ -40,6 +42,7 @@
 
     .top-contact-bar {
         position: relative;
+        top: auto;
         z-index: 1001;
         display: block;
         width: 100%;
@@ -57,17 +60,17 @@
         justify-content: space-between;
         gap: 12px 24px;
         width: 100%;
-        max-width: 1440px;
-        min-height: 38px;
+        max-width: 1200px;
+        min-height: 34px;
         margin: 0 auto;
-        padding: 7px clamp(14px, 3vw, 42px);
+        padding: 5px clamp(14px, 3vw, 28px);
     }
 
     .top-contact-details {
         display: flex;
         align-items: center;
         flex-wrap: wrap;
-        gap: 8px 20px;
+        gap: 6px 18px;
         min-width: 0;
     }
 
@@ -110,28 +113,29 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 27px;
-        height: 27px;
-        border: 1px solid #dce6df;
-        border-radius: 50%;
-        background: #fff;
-        color: #17613d;
-        font-size: 12px;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        color: #fff;
+        font-size: 17px;
+        line-height: 1;
         text-decoration: none;
-        transition: color .2s ease, background .2s ease, border-color .2s ease, transform .2s ease;
+        transition: color .2s ease, transform .2s ease;
     }
 
     .top-social-icon:hover {
-        color: #fff;
-        background: #087443;
-        border-color: #087443;
+        color: #d9a441;
+        background: transparent;
         transform: translateY(-1px);
     }
 
     /* Main header */
     .site-header {
-        position: sticky;
-        top: 0;
+        position: relative;
+        top: auto;
         z-index: 1000;
         display: block;
         width: 100%;
@@ -277,6 +281,8 @@
         appearance: none;
         -webkit-appearance: none;
         -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        pointer-events: auto;
         line-height: 1;
     }
 
@@ -370,6 +376,7 @@
             display: flex !important;
             visibility: visible !important;
             opacity: 1 !important;
+            pointer-events: auto !important;
         }
 
         .site-header #primary-navigation.site-nav > a {
@@ -413,7 +420,7 @@
             flex-direction: column;
             align-items: center;
             gap: 6px;
-            padding: 7px 10px;
+            padding: 5px 10px;
         }
 
         .top-contact-details {
@@ -438,8 +445,8 @@
         }
 
         .top-social-icon {
-            width: 25px;
-            height: 25px;
+            width: 23px;
+            height: 23px;
             font-size: 11px;
         }
 
@@ -579,7 +586,8 @@
             aria-label="Open navigation menu"
             aria-expanded="false"
             aria-controls="primary-navigation"
-            title="Open menu">
+            title="Open menu"
+            onclick="(function(btn){var header=btn.closest('.site-header');var nav=header&&header.querySelector('#primary-navigation');if(!nav)return;var open=!nav.classList.contains('is-open');nav.classList.toggle('is-open',open);btn.setAttribute('aria-expanded',open?'true':'false');btn.setAttribute('aria-label',open?'Close navigation menu':'Open navigation menu');btn.setAttribute('title',open?'Close menu':'Open menu');if(open){nav.style.setProperty('display','flex','important');nav.style.setProperty('visibility','visible','important');nav.style.setProperty('opacity','1','important');nav.style.setProperty('pointer-events','auto','important');}else{nav.style.removeProperty('display');nav.style.removeProperty('visibility');nav.style.removeProperty('opacity');nav.style.removeProperty('pointer-events');}})(this)">
             <span></span>
             <span></span>
             <span></span>

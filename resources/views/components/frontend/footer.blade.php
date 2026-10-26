@@ -216,7 +216,7 @@ $mapUrl = trim((string) ($siteSettings?->map_embed_url ?? ''));
                 ?: ('© ' . date('Y') . ' ' . $siteName . '. All rights reserved.') }}
         </p>
 
-        <span class="footer-credit">Brute Corp</span>
+        <span class="footer-credit">Brute Corp</span>   
     </div>
 </footer>
 
