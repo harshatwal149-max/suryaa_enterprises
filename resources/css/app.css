@@ -12,7 +12,7 @@
  * Sticky & Slide Header Fix
  * -------------------------------------------------- */
 
-header,
+header:not(.sx-header),
 .site-header,
 .main-header {
     position: sticky;
@@ -27,7 +27,7 @@ header,
 }
 
 /* Jab page scroll/slide ho tab elevation shadow aur clean surface */
-header.scrolled,
+header.scrolled:not(.sx-header),
 .site-header.scrolled,
 .main-header.scrolled {
     background-color: rgba(255, 255, 255, 0.98);

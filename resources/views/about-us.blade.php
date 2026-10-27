@@ -1,5 +1,15 @@
 @extends('layouts.frontend')
 
+@section('title', 'About Us – Trusted Solar Company in Kangra, HP')
+@section('meta_description', 'About ' . \App\Support\Seo::siteName() . ': ISO 9001:2015 certified, authorised Super Solar distributor in Kangra, HP, supplying and installing solar systems across Himachal.')
+
+@push('schema')
+{{ \App\Support\Seo::jsonLd(
+    \App\Support\Seo::webPage('AboutPage', 'About ' . \App\Support\Seo::siteName()),
+    \App\Support\Seo::breadcrumbs(['Home' => route('home'), 'About Us' => route('about')])
+) }}
+@endpush
+
 @section('content')
 @php
 $settings = \App\Models\SiteSetting::first();

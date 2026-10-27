@@ -1,6 +1,7 @@
 @extends('layouts.frontend')
 
 @section('title', 'Write a Review')
+@section('robots', 'noindex,follow')
 
 @section('content')
 <style>

@@ -1,6 +1,14 @@
 @extends('layouts.frontend')
 
-@section('title', 'Send an Enquiry')
+@section('title', 'Get a Free Solar Quote – Send an Enquiry')
+@section('meta_description', 'Get a free quote for solar water heaters, rooftop solar plants, street lights, fencing & home lighting in Kangra, HP. Share your need; we reply quickly.')
+
+@push('schema')
+{{ \App\Support\Seo::jsonLd(
+    \App\Support\Seo::webPage('ContactPage', 'Send an Enquiry'),
+    \App\Support\Seo::breadcrumbs(['Home' => route('home'), 'Send an Enquiry' => route('enquiry')])
+) }}
+@endpush
 
 @section('content')
 <section class="enquiry-page">

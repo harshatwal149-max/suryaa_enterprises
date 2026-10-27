@@ -1,6 +1,14 @@
 @extends('layouts.frontend')
 
-@section('title', 'Contact Us | Suryaa Enterprises')
+@section('title', 'Contact Us – Solar Dealer in Kangra, HP')
+@section('meta_description', 'Contact ' . \App\Support\Seo::siteName() . ', Kangra, HP for solar water heaters, rooftop solar, street lights & fencing. Call or WhatsApp for a free quote and site survey.')
+
+@push('schema')
+{{ \App\Support\Seo::jsonLd(
+    \App\Support\Seo::webPage('ContactPage', 'Contact ' . \App\Support\Seo::siteName()),
+    \App\Support\Seo::breadcrumbs(['Home' => route('home'), 'Contact Us' => route('contact')])
+) }}
+@endpush
 
 @section('content')
 @php

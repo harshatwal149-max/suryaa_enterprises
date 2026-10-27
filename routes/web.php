@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\ProductController as AdminProductController;
 
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\ProductController as FrontendProductController;
+use App\Http\Controllers\Frontend\SeoController;
 use App\Http\Controllers\Frontend\TestimonialController as FrontendTestimonialController;
 
 use App\Http\Controllers\EnquiryController;
@@ -29,6 +30,18 @@ use App\Models\Product;
 | Frontend Routes
 |--------------------------------------------------------------------------
 */
+
+// Search engines: sitemap and robots rules
+Route::get('/sitemap.xml', [
+    SeoController::class,
+    'sitemap'
+])->name('sitemap');
+
+Route::get('/robots.txt', [
+    SeoController::class,
+    'robots'
+])->name('robots');
+
 
 // Homepage
 Route::get('/', [
@@ -66,7 +79,7 @@ Route::get('/enquiry', function () {
 Route::post('/enquiry', [
     EnquiryController::class,
     'store'
-])->name('enquiry.store');
+])->middleware('throttle:10,1')->name('enquiry.store');
 
 
 // Product Listing
@@ -297,6 +310,16 @@ Route::prefix('admin')
             AdminProductController::class,
             'toggleStatus'
         ])->name('products.toggle-status');
+
+        Route::post('/products/price-visibility', [
+            AdminProductController::class,
+            'togglePriceVisibility'
+        ])->name('products.price-visibility');
+
+        Route::post('/products/bulk', [
+            AdminProductController::class,
+            'bulk'
+        ])->name('products.bulk');
 
         Route::delete('/products/{product}/images/{image}', [
             AdminProductController::class,

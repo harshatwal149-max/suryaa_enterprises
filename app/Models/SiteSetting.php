@@ -56,7 +56,26 @@ class SiteSetting extends Model
         'seo_keywords',
         'default_meta_robots',
         'seo_og_image_path',
+
+        // Products
+        'show_product_prices',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'show_product_prices' => 'boolean',
+        ];
+    }
+
+    /**
+     * Whether product prices are shown on the website (site-wide switch).
+     * Memoised per request because every product card asks.
+     */
+    public static function pricesVisible(): bool
+    {
+        return once(fn () => (bool) (static::first()?->show_product_prices ?? true));
+    }
 
     /**
      * WhatsApp number as digits with country code, ready for wa.me links.
