@@ -7,7 +7,6 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\SiteSetting;
 use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class ProductController extends Controller
@@ -55,16 +54,25 @@ class ProductController extends Controller
             $query->where('category_id', $request->input('category'));
         }
 
+        // With prices switched off site-wide, every price-based filter and sort is ignored.
+        $pricesVisible = SiteSetting::pricesVisible();
+
+        // Products with a hidden price can't match price-based filters,
+        // otherwise the filter would reveal the price range.
+        if ($pricesVisible && (is_numeric($request->input('min_price')) || is_numeric($request->input('max_price')) || $request->boolean('on_sale'))) {
+            $query->where('show_price', true);
+        }
+
         // Price range on the price the customer actually pays.
-        if (is_numeric($request->input('min_price'))) {
+        if ($pricesVisible && is_numeric($request->input('min_price'))) {
             $query->whereRaw(self::EFFECTIVE_PRICE . ' >= ?', [(float) $request->input('min_price')]);
         }
 
-        if (is_numeric($request->input('max_price'))) {
+        if ($pricesVisible && is_numeric($request->input('max_price'))) {
             $query->whereRaw(self::EFFECTIVE_PRICE . ' <= ?', [(float) $request->input('max_price')]);
         }
 
-        if ($request->boolean('on_sale')) {
+        if ($pricesVisible && $request->boolean('on_sale')) {
             $query->where('discount_price', '>', 0)
                 ->whereColumn('discount_price', '<', 'price');
         }
@@ -73,14 +81,19 @@ class ProductController extends Controller
             $query->where('quantity', '>', 0);
         }
 
-        $sort = array_key_exists((string) $request->input('sort'), self::SORT_OPTIONS)
+        $sortOptions = $pricesVisible
+            ? self::SORT_OPTIONS
+            : array_intersect_key(self::SORT_OPTIONS, array_flip(['latest', 'name']));
+
+        $sort = array_key_exists((string) $request->input('sort'), $sortOptions)
             ? (string) $request->input('sort')
             : 'latest';
 
         match ($sort) {
-            'price_asc' => $query->orderByRaw(self::EFFECTIVE_PRICE . ' ASC'),
-            'price_desc' => $query->orderByRaw(self::EFFECTIVE_PRICE . ' DESC'),
-            'discount' => $query->orderByRaw('CASE WHEN discount_price > 0 AND discount_price < price THEN (price - discount_price) / price ELSE 0 END DESC'),
+            // Hidden-price products go last so their position doesn't hint at the price.
+            'price_asc' => $query->orderByDesc('show_price')->orderByRaw(self::EFFECTIVE_PRICE . ' ASC'),
+            'price_desc' => $query->orderByDesc('show_price')->orderByRaw(self::EFFECTIVE_PRICE . ' DESC'),
+            'discount' => $query->orderByDesc('show_price')->orderByRaw('CASE WHEN discount_price > 0 AND discount_price < price THEN (price - discount_price) / price ELSE 0 END DESC'),
             'name' => $query->orderBy('name'),
             default => $query->latest(),
         };
@@ -90,7 +103,6 @@ class ProductController extends Controller
             ->withQueryString();
 
         $totalProducts = Product::where('is_active', true)->count();
-        $sortOptions = self::SORT_OPTIONS;
 
         $whatsappNumber = SiteSetting::first()?->whatsappDigits() ?? '';
 
@@ -100,20 +112,20 @@ class ProductController extends Controller
             'totalProducts',
             'sort',
             'sortOptions',
+            'pricesVisible',
             'whatsappNumber'
         ));
     }
 
-    /** Display a product detail page; missing/inactive products return home. */
-    public function show(string|Product $slug): View|RedirectResponse
+    /** Display a product detail page; missing/inactive products show the 404 page. */
+    public function show(string|Product $slug): View
     {
         $product = $slug instanceof Product
             ? $slug
             : Product::where('slug', $slug)->first();
 
-        if (!$product || !$product->is_active) {
-            return redirect()->route('home');
-        }
+        // A real 404 (not a redirect home) so search engines drop removed products.
+        abort_if(!$product || !$product->is_active, 404);
 
         $product->load(['category', 'subcategory', 'images']);
 
@@ -125,12 +137,27 @@ class ProductController extends Controller
             ->take(4)
             ->get();
 
-        $whatsappNumber = SiteSetting::first()?->whatsappDigits() ?? '';
+        // Top the row up with other categories so it always shows four products.
+        if ($relatedProducts->count() < 4) {
+            $relatedProducts = $relatedProducts->concat(
+                Product::with('category')
+                    ->where('is_active', true)
+                    ->whereNotIn('id', $relatedProducts->pluck('id')->push($product->id))
+                    ->latest()
+                    ->take(4 - $relatedProducts->count())
+                    ->get()
+            );
+        }
+
+        $settings = SiteSetting::first();
+        $whatsappNumber = $settings?->whatsappDigits() ?? '';
+        $phoneNumber = (string) ($settings?->phone_primary ?? '');
 
         return view('Products.show', compact(
             'product',
             'relatedProducts',
-            'whatsappNumber'
+            'whatsappNumber',
+            'phoneNumber'
         ));
     }
 }

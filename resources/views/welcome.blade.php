@@ -1,6 +1,11 @@
 @extends('layouts.frontend')
 
-@section('title', 'Home')
+@push('schema')
+{{ \App\Support\Seo::jsonLd(
+    \App\Support\Seo::webPage('WebPage', \App\Support\Seo::siteName(), \App\Support\Seo::excerpt(\App\Support\Seo::settings()?->seo_description) ?: null),
+    $products->isNotEmpty() ? \App\Support\Seo::itemList($products->take(12)) + ['name' => 'Featured Solar Products'] : []
+) }}
+@endpush
 
 @section('content')
 

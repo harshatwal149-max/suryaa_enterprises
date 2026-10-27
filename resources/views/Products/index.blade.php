@@ -1,6 +1,42 @@
 @extends('layouts.frontend')
 
-@section('title', 'Solar Products | Suryaa Enterprises')
+@php
+$seoCategory = $categories->firstWhere('id', (int) request('category'));
+$seoPage = $products->currentPage();
+$seoHeading = $seoCategory ? \Illuminate\Support\Str::title($seoCategory->name) : 'Solar Products';
+$seoTitle = $seoCategory ? \App\Support\Seo::categoryTitle($seoCategory) : 'Solar Products in ' . \App\Support\Seo::AREA;
+
+// Search, price, sort and stock filters create near-duplicate pages: keep them out of the index.
+$seoIsFiltered = collect(['search', 'min_price', 'max_price', 'on_sale', 'in_stock', 'sort'])
+    ->contains(fn ($key) => filled(request($key)));
+
+$seoCanonical = route('products.index', array_filter([
+    'category' => $seoCategory?->id,
+    'page' => $seoPage > 1 ? $seoPage : null,
+]));
+@endphp
+
+@section('title', $seoTitle . ($seoPage > 1 ? ' – Page ' . $seoPage : ''))
+@section('meta_description', $seoCategory
+    ? \App\Support\Seo::categoryDescription($seoCategory)
+    : 'Shop ' . $totalProducts . '+ solar products in Kangra, HP: solar water heaters, rooftop solar systems, street lights, fencing & home lighting. Genuine Super Solar dealer.')
+@section('canonical', $seoCanonical)
+@if ($seoIsFiltered)
+@section('robots', 'noindex,follow')
+@endif
+
+@push('schema')
+{{ \App\Support\Seo::jsonLd(
+    \App\Support\Seo::webPage('CollectionPage', $seoHeading, null, [
+        'mainEntity' => \App\Support\Seo::itemList($products, ($seoPage - 1) * $products->perPage()),
+    ]),
+    \App\Support\Seo::breadcrumbs(array_filter([
+        'Home' => route('home'),
+        'Products' => route('products.index'),
+        $seoHeading => $seoCategory ? route('products.index', ['category' => $seoCategory->id]) : null,
+    ]))
+) }}
+@endpush
 
 @section('content')
 @php
@@ -17,15 +53,15 @@ if ($selectedCategory) {
     $activeFilters[\Illuminate\Support\Str::title($selectedCategory->name)] = ['category'];
 }
 
-if (is_numeric(request('min_price'))) {
+if ($pricesVisible && is_numeric(request('min_price'))) {
     $activeFilters['Min ₹' . number_format((float) request('min_price'))] = ['min_price'];
 }
 
-if (is_numeric(request('max_price'))) {
+if ($pricesVisible && is_numeric(request('max_price'))) {
     $activeFilters['Max ₹' . number_format((float) request('max_price'))] = ['max_price'];
 }
 
-if (request()->boolean('on_sale')) {
+if ($pricesVisible && request()->boolean('on_sale')) {
     $activeFilters['On Sale'] = ['on_sale'];
 }
 
@@ -76,6 +112,7 @@ if (request()->boolean('in_stock')) {
                     @endforeach
                 </div>
 
+                @if ($pricesVisible)
                 <div class="pl-filter-group">
                     <h3>Price (₹)</h3>
                     <div class="pl-price-inputs">
@@ -85,13 +122,16 @@ if (request()->boolean('in_stock')) {
                     </div>
                     <button type="submit" class="pl-apply-btn">Apply</button>
                 </div>
+                @endif
 
                 <div class="pl-filter-group">
                     <h3>Availability</h3>
+                    @if ($pricesVisible)
                     <label class="pl-check">
                         <input type="checkbox" name="on_sale" value="1" @checked(request()->boolean('on_sale'))>
                         <span>On Sale</span>
                     </label>
+                    @endif
                     <label class="pl-check">
                         <input type="checkbox" name="in_stock" value="1" @checked(request()->boolean('in_stock'))>
                         <span>In Stock</span>
@@ -834,30 +874,11 @@ if (request()->boolean('in_stock')) {
             gap: 12px;
         }
 
-        .se-product-image-link {
-            height: 150px;
-        }
-
-        .se-product-card-body {
-            padding: 12px;
-        }
-
-        .se-product-card-body h3 {
-            font-size: 14px;
-        }
-
-        .se-product-price strong {
-            font-size: 14px;
-        }
     }
 
     @media (max-width: 360px) {
         .pl-grid {
             grid-template-columns: minmax(0, 1fr);
-        }
-
-        .se-product-image-link {
-            height: 210px;
         }
     }
 

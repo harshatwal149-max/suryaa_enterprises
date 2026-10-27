@@ -483,6 +483,36 @@
                 @enderror
             </div>
 
+            {{-- Search engine (SEO) overrides --}}
+            <div class="product-field full">
+                <label for="meta_title">SEO Title</label>
+                <input
+                    type="text"
+                    id="meta_title"
+                    name="meta_title"
+                    maxlength="255"
+                    placeholder="Auto: {{ \App\Support\Seo::productTitle($product->replicate()->fill(['meta_title' => null])) }}"
+                    value="{{ old('meta_title', $product->meta_title) }}">
+                <small class="product-help">Shown as the title in Google results. Best under 60 characters.</small>
+                @error('meta_title')
+                <span class="product-error">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="product-field full">
+                <label for="meta_description">SEO Description</label>
+                <textarea
+                    id="meta_description"
+                    name="meta_description"
+                    maxlength="320"
+                    rows="3"
+                    placeholder="Auto: {{ \App\Support\Seo::productDescription($product->replicate()->fill(['meta_description' => null])) }}">{{ old('meta_description', $product->meta_description) }}</textarea>
+                <small class="product-help">Shown under the title in Google results. Best 120–160 characters.</small>
+                @error('meta_description')
+                <span class="product-error">{{ $message }}</span>
+                @enderror
+            </div>
+
             <div class="product-field full">
                 <label class="product-checkbox">
                     <input
@@ -492,6 +522,18 @@
                         @checked((bool) old('is_active', $product->is_active))
                     >
                     Active product
+                </label>
+            </div>
+
+            <div class="product-field full">
+                <label class="product-checkbox">
+                    <input
+                        type="checkbox"
+                        name="show_price"
+                        value="1"
+                        @checked((bool) old('show_price', $product->show_price))
+                    >
+                    Show price on website
                 </label>
             </div>
 

@@ -165,6 +165,8 @@
 
     /* Main bar */
     .sx-header {
+        position: relative;
+        will-change: auto;
         background: rgba(255, 255, 255, .97);
         border-bottom: 1px solid #e6ece7;
         backdrop-filter: saturate(1.6) blur(10px);
@@ -978,7 +980,13 @@
             wrap.dataset.ready = 'true';
 
             // Shrink the header and hide the top bar once the page scrolls.
-            const onScroll = () => wrap.classList.toggle('is-scrolled', window.scrollY > 40);
+            // Separate on/off thresholds so the height change of the collapsing
+            // header can't push scrollY back across the line and cause flicker.
+            const onScroll = () => {
+                const scrolled = wrap.classList.contains('is-scrolled');
+                if (!scrolled && window.scrollY > 80) wrap.classList.add('is-scrolled');
+                else if (scrolled && window.scrollY < 10) wrap.classList.remove('is-scrolled');
+            };
             onScroll();
             window.addEventListener('scroll', onScroll, { passive: true });
 

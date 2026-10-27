@@ -20,14 +20,14 @@ $hideFloatingButtons = request()->routeIs('testimonials.create');
 @endphp
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-IN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', $siteSettings?->seo_title ?: $siteName)</title>
+    @include('partials.seo')
 
     @if($siteSettings?->favicon_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($siteSettings->favicon_path))
     <link rel="icon" href="{{ asset('storage/' . $siteSettings->favicon_path) }}">
@@ -35,21 +35,9 @@ $hideFloatingButtons = request()->routeIs('testimonials.create');
     <link rel="icon" type="image/svg+xml" href="{{ asset('images/logo-mark.svg') }}">
     @endif
 
-    @if($siteSettings?->seo_description)
-    <meta name="description" content="{{ $siteSettings->seo_description }}">
-    @endif
+    <link rel="apple-touch-icon" href="{{ \App\Support\Seo::logoUrl() }}">
 
-    @if($siteSettings?->seo_keywords)
-    <meta name="keywords" content="{{ $siteSettings->seo_keywords }}">
-    @endif
-
-    @if($siteSettings?->default_meta_robots)
-    <meta name="robots" content="{{ $siteSettings->default_meta_robots }}">
-    @endif
-
-    @if($siteSettings?->seo_og_image_path)
-    <meta property="og:image" content="{{ asset('storage/' . $siteSettings->seo_og_image_path) }}">
-    @endif
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 
     {{-- Application CSS and JavaScript --}}
     @vite([

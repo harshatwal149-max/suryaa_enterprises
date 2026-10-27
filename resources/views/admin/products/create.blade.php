@@ -405,6 +405,36 @@
                 @enderror
             </div>
 
+            {{-- Search engine (SEO) overrides --}}
+            <div class="product-field full">
+                <label for="meta_title">SEO Title</label>
+                <input
+                    type="text"
+                    id="meta_title"
+                    name="meta_title"
+                    maxlength="255"
+                    placeholder="Leave blank for automatic: product name + Kangra, HP"
+                    value="{{ old('meta_title') }}">
+                <small class="product-help">Shown as the title in Google results. Best under 60 characters.</small>
+                @error('meta_title')
+                <span class="product-error">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="product-field full">
+                <label for="meta_description">SEO Description</label>
+                <textarea
+                    id="meta_description"
+                    name="meta_description"
+                    maxlength="320"
+                    rows="3"
+                    placeholder="Leave blank for an automatic description built from the product details">{{ old('meta_description') }}</textarea>
+                <small class="product-help">Shown under the title in Google results. Best 120–160 characters.</small>
+                @error('meta_description')
+                <span class="product-error">{{ $message }}</span>
+                @enderror
+            </div>
+
             {{-- Active Status --}}
             <div class="product-field full">
                 <label class="product-checkbox">
@@ -415,6 +445,19 @@
                         @checked(old('is_active', '1') == '1')
                     >
                     Active product
+                </label>
+            </div>
+
+            {{-- Price Visibility --}}
+            <div class="product-field full">
+                <label class="product-checkbox">
+                    <input
+                        type="checkbox"
+                        name="show_price"
+                        value="1"
+                        @checked(old('show_price', '1') == '1')
+                    >
+                    Show price on website
                 </label>
             </div>
 

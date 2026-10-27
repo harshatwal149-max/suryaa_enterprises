@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\SiteSetting;
 use App\Models\Subcategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +25,11 @@ class ProductController extends Controller
             ->latest()
             ->paginate(15);
 
-        return view('admin.products.index', compact('products'));
+        $categories = Category::orderBy('name')->get();
+
+        $pricesVisible = SiteSetting::pricesVisible();
+
+        return view('admin.products.index', compact('products', 'categories', 'pricesVisible'));
     }
 
     public function create(): View
@@ -76,6 +81,7 @@ class ProductController extends Controller
                 unset($validated['gallery_images']);
 
                 $validated['is_active'] = $request->boolean('is_active');
+                $validated['show_price'] = $request->boolean('show_price');
 
                 $product = Product::create($validated);
 
@@ -186,6 +192,7 @@ class ProductController extends Controller
                 unset($validated['gallery_images']);
 
                 $validated['is_active'] = $request->boolean('is_active');
+                $validated['show_price'] = $request->boolean('show_price');
 
                 $product->update($validated);
 
@@ -319,6 +326,99 @@ class ProductController extends Controller
             ->with('success', 'Product deleted successfully.');
     }
 
+    /**
+     * Turn product prices on or off for the whole website.
+     */
+    public function togglePriceVisibility(Request $request): Response
+    {
+        $settings = SiteSetting::firstOrCreate([]);
+        $settings->show_product_prices = ! $settings->show_product_prices;
+        $settings->save();
+
+        $message = $settings->show_product_prices
+            ? 'Product prices are now visible on the website.'
+            : 'Product prices are now hidden on the whole website.';
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'visible' => $settings->show_product_prices,
+                'message' => $message,
+            ]);
+        }
+
+        return back()->with('success', $message);
+    }
+
+    /**
+     * Apply one action to several selected products at once.
+     */
+    public function bulk(Request $request): Response
+    {
+        $validated = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer', Rule::exists('products', 'id')],
+            'action' => ['required', Rule::in([
+                'delete',
+                'activate',
+                'deactivate',
+                'show_price',
+                'hide_price',
+                'category',
+            ])],
+            'category_id' => [
+                'required_if:action,category',
+                'nullable',
+                'integer',
+                Rule::exists('categories', 'id'),
+            ],
+        ]);
+
+        $products = Product::whereIn('id', $validated['ids']);
+        $count = count($validated['ids']);
+
+        if ($validated['action'] === 'delete') {
+            $paths = Product::whereIn('id', $validated['ids'])
+                ->whereNotNull('image')
+                ->pluck('image')
+                ->merge(
+                    ProductImage::whereIn('product_id', $validated['ids'])
+                        ->pluck('image_path')
+                )
+                ->filter()
+                ->all();
+
+            $products->delete();
+
+            Storage::disk('public')->delete($paths);
+
+            $message = "{$count} product(s) deleted successfully.";
+        } else {
+            $products->update(match ($validated['action']) {
+                'activate' => ['is_active' => true],
+                'deactivate' => ['is_active' => false],
+                'show_price' => ['show_price' => true],
+                'hide_price' => ['show_price' => false],
+                // The old subcategory belongs to the previous category.
+                'category' => [
+                    'category_id' => $validated['category_id'],
+                    'subcategory_id' => null,
+                ],
+            });
+
+            $message = "{$count} product(s) updated successfully.";
+        }
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+            ]);
+        }
+
+        return back()->with('success', $message);
+    }
+
     private function validateProduct(
         Request $request,
         ?Product $product = null
@@ -362,6 +462,10 @@ class ProductController extends Controller
 
             'description' => ['nullable', 'string'],
 
+            'meta_title' => ['nullable', 'string', 'max:255'],
+
+            'meta_description' => ['nullable', 'string', 'max:320'],
+
             'image' => [
                 $product ? 'nullable' : 'required',
                 'image',
@@ -378,6 +482,8 @@ class ProductController extends Controller
             ],
 
             'is_active' => ['nullable', 'boolean'],
+
+            'show_price' => ['nullable', 'boolean'],
         ]);
     }
 

@@ -17,10 +17,13 @@ class Product extends Model
         'sku',
         'price',
         'discount_price',
+        'show_price',
         'quantity',
         'size',
         'brand',
         'description',
+        'meta_title',
+        'meta_description',
         'image',
         'is_active',
     ];
@@ -30,6 +33,7 @@ class Product extends Model
         return [
             'price' => 'decimal:2',
             'discount_price' => 'decimal:2',
+            'show_price' => 'boolean',
             'quantity' => 'integer',
             'is_active' => 'boolean',
         ];
@@ -93,6 +97,28 @@ class Product extends Model
         }
 
         return $slug;
+    }
+
+    /**
+     * Whether the price may be shown on the website: the site-wide switch
+     * and this product's own switch must both be on, and a price must be set.
+     */
+    public function priceVisible(): bool
+    {
+        return $this->show_price
+            && SiteSetting::pricesVisible()
+            && (float) $this->price > 0;
+    }
+
+    /**
+     * Whether the website should show this product's discount.
+     */
+    public function hasVisibleDiscount(): bool
+    {
+        return $this->priceVisible()
+            && $this->discount_price !== null
+            && (float) $this->discount_price > 0
+            && (float) $this->discount_price < (float) $this->price;
     }
 
     /**
