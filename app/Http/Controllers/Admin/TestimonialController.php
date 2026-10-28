@@ -25,7 +25,7 @@ class TestimonialController extends Controller
             'customer_name' => ['required', 'string', 'max:255'],
             'designation' => ['nullable', 'string', 'max:255'],
             'review' => ['required', 'string', 'max:5000'],
-            'rating' => ['required', 'integer', 'min:1', 'max:5'],
+            'rating' => ['required', 'numeric', 'min:1', 'max:5'],
             'is_active' => ['required', 'boolean'],
         ]);
 
@@ -47,7 +47,7 @@ class TestimonialController extends Controller
             'customer_name' => ['required', 'string', 'max:255'],
             'designation' => ['nullable', 'string', 'max:255'],
             'review' => ['required', 'string', 'max:5000'],
-            'rating' => ['required', 'integer', 'min:1', 'max:5'],
+            'rating' => ['required', 'numeric', 'min:1', 'max:5'],
             'is_active' => ['required', 'boolean'],
         ]);
 
@@ -67,3 +67,5 @@ class TestimonialController extends Controller
             ->with('success', 'Testimonial deleted successfully.');
     }
 }
+
+

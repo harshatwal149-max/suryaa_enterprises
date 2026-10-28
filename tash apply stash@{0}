@@ -1,0 +1,84 @@
+ app/Http/Controllers/Admin/HeroSlideController.php |  93 [32m++[m[31m-[m
+ app/Http/Controllers/Admin/ProductController.php   |  25 [32m+[m[31m-[m
+ resources/views/about-us.blade.php                 |  36 [32m+[m[31m-[m
+ resources/views/admin/enquiries/index.blade.php    | 266 [32m+++[m[31m---[m
+ resources/views/admin/products/create.blade.php    |   9 [32m+[m[31m-[m
+ resources/views/contact-us.blade.php               |   5 [32m+[m[31m-[m
+ routes/storage/app/.gitignore                      |   4 [31m-[m
+ routes/storage/app/private/.gitignore              |   2 [31m-[m
+ routes/storage/app/public/.gitignore               |   2 [31m-[m
+ routes/storage/framework/.gitignore                |  10 [31m-[m
+ routes/storage/framework/cache/.gitignore          |   4 [31m-[m
+ routes/storage/framework/cache/data/.gitignore     |   2 [31m-[m
+ routes/storage/framework/cache/locks/.gitignore    |   2 [31m-[m
+ routes/storage/framework/sessions/.gitignore       |   2 [31m-[m
+ routes/storage/framework/testing/.gitignore        |   2 [31m-[m
+ routes/storage/framework/views/.gitignore          |   2 [31m-[m
+ routes/storage/logs/.gitignore                     |   2 [31m-[m
+ .../bJMfWkF4xlUXUGZbMHMtU6lwV3e5lBZq23EpkWyC.png   | Bin [31m0[m -> [32m2772210[m bytes
+ .../btDMXGVgvoz0geK2Lihs2bB8o9zZka6uF6TEW25i.png   | Bin [31m0[m -> [32m1631496[m bytes
+ .../lRBtKwTddTowcZsTXjAAg0qu1JK5gzDLLzGt0IZA.png   | Bin [31m0[m -> [32m2472661[m bytes
+ ...> wI3Xs2k7k71jZSmvjWs5BLFsqKxC3n29C49Li6kZ.jpg} | Bin
+ .../WdhY2kXizdemirXWTURX2GYhDppUsxss02MGI5mW.jpg   | Bin [31m0[m -> [32m36185[m bytes
+ .../5tToDzSlscNQcqhYiusKG5SfjzsOyAEZFP76CNDm.jpg   | Bin [31m0[m -> [32m39950[m bytes
+ .../DSxoxy9Bg7cg0OCk8sbXJmMFdIV8tqAUl6dsML6Q.webp  | Bin [31m0[m -> [32m74980[m bytes
+ .../JEKITrYfxHDp7VX8T5Cr3ZBxOhNT4Ow4NhBBldOV.webp  | Bin [31m0[m -> [32m187702[m bytes
+ .../wV584WioIRgicZH7KBSefMnmcWV3ixxJrThEw4pR.jpg   | Bin [31m0[m -> [32m29024[m bytes
+ .../uK75NmOv4XSJwnUmkfhSZUvK5CZF823AYRLPYaRX.jpg   | Bin [31m0[m -> [32m39950[m bytes
+ .../BBNFoE8TTsf5JoDPx8H317VbjyxRK3b1RDNt0sxj.jpg   | Bin [31m45671[m -> [32m0[m bytes
+ .../Rm7Zjaj2C1zjYbuL0nfcx0rEfPekkt2S0Y1jFjMR.png   | Bin [31m0[m -> [32m2772210[m bytes
+ .../T2G4PJB2bCl3Ohe1g6QhUJJhTowMqx2Cx2UZDoZC.png   | Bin [31m0[m -> [32m807499[m bytes
+ .../views/005bc54c8cd266849f3c3a434e5ac47d.php     |  48 [32m++[m
+ .../views/04a3b89cf7cac3bd57580e77c5493f3c.php     | 215 [32m+++++[m
+ .../views/067e883288652c8941b49e833eb9873a.php     |   4 [32m+[m
+ .../views/0e67b43a73a02d1a7cf28630a9861fd2.php     | 374 [32m+++++++++[m
+ .../views/10b9656e526727c6d7006713884fe3b2.php     |  11 [32m+[m
+ .../views/144f28a07abc05a5a5a3ba3b48997547.php     |   4 [32m+[m
+ .../views/1883461d1692cbb6b48a81329a3d8d48.php     |   4 [32m+[m
+ .../views/2dba94c9ab18cc730eb28e5f10342375.php     | 564 [32m+++++++++++++[m
+ .../views/2e1f0853c2cb374a4933082938c4e85a.php     |  78 [32m++[m
+ .../views/303fb2961cd9430fa86faa0a796c9f6d.php     |  83 [32m++[m
+ .../views/3bcddf188d69e1b9ba0282420276935d.php     |   5 [32m+[m
+ .../views/48de64b043de1528e7582b18c4e9713b.php     | 330 [32m++++++++[m
+ .../views/49b903f1f00d2d696eae72bda1a4efa3.php     |  69 [32m++[m
+ .../views/4b3033a5dfa5c63232f2615e92ea7067.php     | 603 [32m++++++++++++++[m
+ .../views/4f300e605b58f17bc9bfec62846fb3d1.php     |  98 [32m+++[m
+ .../views/51d00e8b44c369a8c8f2c9d40db932c9.php     | 115 [32m+++[m
+ .../views/55544979933ab281764ce1691964c6b9.php     |   5 [32m+[m[31m-[m
+ .../views/58b6fe6b35343e62fc2687cb1d1cc0fb.php     |  35 [32m+[m
+ .../views/61864de3b0d098f65cc6c0308588122b.php     |  77 [32m++[m
+ .../views/6f2e3cb974c8cce2f5507b8fcd7e35f0.php     |  11 [32m+[m
+ .../views/73d7bdbb0c3cc2f7534e92d348eb6c03.php     |  35 [32m+[m[31m-[m
+ .../views/763e5985210f984c19b88ca67a9a4179.php     |  28 [32m+[m
+ .../views/7a5ddbd2332196ead4ca3fcc95a471cf.php     |  79 [32m++[m
+ .../views/820d1bde024b7f9047d2b09492667f21.php     |  12 [32m+[m
+ .../views/83a90bf7ab5a013894c722e30636ec49.php     |  57 [32m++[m
+ .../views/83db344e84bb52856be530f2527ad350.php     |  79 [32m++[m
+ .../views/8652c80e27ebd02d806062e5db23854a.php     | 167 [32m++++[m
+ .../views/8d87e3bf8ec2ab3c10a734775733c285.php     |   5 [32m+[m
+ .../views/93708d28317f86e20d983d11bf7d9509.php     | 170 [32m++++[m
+ .../views/98b1fc733dbd15d5ce98759480b5fa8f.php     |   4 [32m+[m
+ .../views/99cfc58d8d2944a9dfa5b1acfe47417d.php     | 157 [32m++++[m
+ .../views/a360cd547a5304593c5116a34eaa9024.php     |  15 [32m+[m
+ .../views/a554edb79664d1ecf689055264bc8c7d.php     |  12 [32m+[m
+ .../views/a6a09b87e894d3217cf3b44e1a557aaa.php     | 290 [32m+++++++[m
+ .../views/a8294f96a366d192ef220eef3e0555be.php     | 418 [32m++++++++++[m
+ .../views/aa9ee23c15358bb5270bb2b10d5d0145.php     |  65 [32m++[m
+ .../views/acfc07967f6a55ee798f5e67520a9e74.php     | 587 [32m++++++++++++++[m
+ .../views/b2668eb04b31b1e0cb6670fd237505da.php     |   6 [32m+[m
+ .../views/c7d65156df1b1f6af96ef5590cfbc2f7.php     |  61 [32m++[m
+ .../views/c81a161e3b2a2bd12f85e0182520aebc.php     | 520 [32m++++++++++++[m
+ .../views/cb3a86dfe9b14f412c1c30298fcea518.php     |   4 [32m+[m
+ .../views/cb4c2c93aafbdf95709b3d0369790bd1.php     |   8 [32m+[m
+ .../views/cfa03c424ae6097dcb4494de2dc94e86.php     | 191 [32m+++++[m
+ .../views/d6ce1779affe5eff2bf55db1903a4af0.php     |  12 [32m+[m
+ .../views/d980ba09db3808608048c3cd0d94d9aa.php     |  51 [32m++[m
+ .../views/e1aba0d7d6df922f0806e6c84d44a794.php     | 528 [32m++++++++++++[m
+ .../views/e24c491196d3c948b435e097881dbe0d.php     | 893 [32m+++++++++++++++++++++[m
+ .../views/f7712685a593cbb8fa053ad943647582.php     | 266 [32m+++[m[31m---[m
+ .../views/fa0a3b6089bbde4806a7beb4006e2f31.php     | 180 [32m+++++[m
+ .../views/fa8cc1ab31ced7db0fb496599b4adeda.php     |   6 [32m+[m
+ .../views/fad89d8b9c02dcb694b1ef8d3c9607c5.php     |  80 [32m++[m
+ .../views/fb88270c931f2eb0f7d5cc8a3c5fc9bc.php     | 114 [32m+++[m
+ tash push -u -m backup-before-pull                 |  18 [32m+[m
+ 83 files changed, 7989 insertions(+), 330 deletions(-)

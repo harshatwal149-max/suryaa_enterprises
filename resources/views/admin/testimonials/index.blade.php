@@ -23,6 +23,10 @@
         <div class="alert-success">{{ session('success') }}</div>
     @endif
 
+    @if(session('error'))
+        <div class="alert-error">{{ session('error') }}</div>
+    @endif
+
     @if($errors->any())
         <div class="alert-error">
             <ul>
@@ -72,11 +76,12 @@
 
                             <td>
                                 @php
-                                    $rating = floatval($testimonial->rating);
-                                    $fullStars = floor($rating);
+                                    $rating = (float) $testimonial->rating;
+                                    $fullStars = (int) floor($rating);
                                     $halfStar = ($rating - $fullStars) >= 0.5 ? 1 : 0;
                                     $emptyStars = max(0, 5 - $fullStars - $halfStar);
                                 @endphp
+
                                 <span class="rating">
                                     {{ str_repeat('★', $fullStars) }}{{ $halfStar ? '½' : '' }}{{ str_repeat('☆', $emptyStars) }}
                                 </span>
@@ -368,6 +373,11 @@
     color: #bc4545;
 }
 
+.btn-delete:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
 .alert-success,
 .alert-error {
     padding: 13px 16px;
@@ -444,78 +454,81 @@
 }
 </style>
 
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.delete-testimonial-form').forEach(function (form) {
-        form.addEventListener('submit', function (event) {
+
+        form.addEventListener('submit', async function (event) {
             event.preventDefault();
 
-            const customer = form.dataset.customer || 'this testimonial';
-            const testimonialId = form.dataset.id;
-            const actionUrl = form.action;
-
-            if (typeof Swal === 'undefined') {
-                if (confirm('Delete the testimonial from ' + customer + '?')) {
-                    form.submit();
-                }
+            // Stop duplicate submissions.
+            if (
+                form.dataset.confirming === 'true' ||
+                form.dataset.deleting === 'true'
+            ) {
                 return;
             }
 
-            Swal.fire({
-                title: 'Delete Testimonial?',
-                text: 'Are you sure you want to delete the review from ' + customer + '?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc2626',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'Cancel',
-                reverseButtons: true
-            }).then(function (result) {
-                if (result.isConfirmed) {
-                    const row = document.getElementById('testimonial-row-' + testimonialId);
+            form.dataset.confirming = 'true';
 
-                    fetch(actionUrl, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json'
-                        },
-                        body: new URLSearchParams(new FormData(form))
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            if (row) {
-                                row.style.transition = 'opacity 0.35s ease';
-                                row.style.opacity = '0';
-                                setTimeout(() => row.remove(), 350);
-                            }
+            const customer = form.dataset.customer || 'this testimonial';
 
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Deleted!',
-                                text: data.message || 'Testimonial deleted successfully.',
-                                timer: 1600,
-                                showConfirmButton: false
-                            });
-                        } else {
-                            throw new Error(data.message || 'Failed to delete');
-                        }
-                    })
-                    .catch(err => {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: err.message || 'Something went wrong.'
-                        });
+            try {
+                let confirmed = false;
+
+                if (typeof Swal !== 'undefined') {
+                    const result = await Swal.fire({
+                        title: 'Delete Testimonial?',
+                        text: 'Are you sure you want to delete the review from ' + customer + '?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc2626',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Yes, delete it!',
+                        cancelButtonText: 'Cancel'
                     });
+
+                    confirmed = result.isConfirmed;
+                } else {
+                    confirmed = confirm(
+                        'Are you sure you want to delete the testimonial from ' +
+                        customer + '?'
+                    );
                 }
-            });
+
+                if (!confirmed) {
+                    form.dataset.confirming = 'false';
+                    return;
+                }
+
+                form.dataset.deleting = 'true';
+
+                const button = form.querySelector('button[type="submit"]');
+
+                if (button) {
+                    button.disabled = true;
+                    button.textContent = 'Deleting...';
+                }
+
+                // Submit the Laravel form normally.
+                // Do not use fetch() or parse a JSON response.
+                HTMLFormElement.prototype.submit.call(form);
+
+            } catch (error) {
+                console.error('Delete confirmation error:', error);
+                form.dataset.confirming = 'false';
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire('Error!', 'Please try deleting again.', 'error');
+                } else {
+                    alert('Please try deleting again.');
+                }
+            }
         });
     });
 });
 </script>
+
 
 @endsection

@@ -59,7 +59,6 @@ class HomeController extends Controller
         // disappears when prices are switched off site-wide.
         $deals = ! SiteSetting::pricesVisible() ? collect() : Product::with('category')
             ->where('is_active', true)
-            ->where('show_price', true)
             ->whereNotNull('discount_price')
             ->where('discount_price', '>', 0)
             ->whereColumn('discount_price', '<', 'price')

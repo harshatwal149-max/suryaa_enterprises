@@ -2,6 +2,7 @@
 
 @section('content')
 <div class="categories-page">
+
     <div class="page-header">
         <div>
             <h1>Subcategories</h1>
@@ -14,7 +15,11 @@
     </div>
 
     @if(session('success'))
-        <div class="alert-success">{{ session('success') }}</div>
+        <div
+            id="subcategory-success-message"
+            data-message="{{ session('success') }}"
+            hidden>
+        </div>
     @endif
 
     @if($errors->any())
@@ -30,7 +35,7 @@
     <div class="table-card">
         <div class="table-heading">
             <h2>All Subcategories</h2>
-            <span id="subcategory-total-badge">{{ $subcategories->total() }} subcategories</span>
+            <span>{{ $subcategories->total() }} subcategories</span>
         </div>
 
         <div class="table-responsive">
@@ -41,15 +46,18 @@
                         <th>Subcategory</th>
                         <th>Parent Category</th>
                         <th>Slug</th>
+                        <th>Status</th>
                         <th>Created</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
 
-                <tbody id="subcategory-table-body">
+                <tbody>
                     @forelse($subcategories as $subcategory)
                         <tr id="subcategory-row-{{ $subcategory->id }}">
-                            <td>{{ $subcategories->firstItem() + $loop->index }}</td>
+                            <td>
+                                {{ $subcategories->firstItem() + $loop->index }}
+                            </td>
 
                             <td>
                                 <div class="category-info">
@@ -78,11 +86,36 @@
                             <td>{{ $subcategory->slug }}</td>
 
                             <td>
+                                <div class="status-wrapper">
+                                    <span class="status-badge {{ $subcategory->is_active ? 'status-active' : 'status-inactive' }}">
+                                        <span class="status-dot"></span>
+                                        {{ $subcategory->is_active ? 'Active' : 'Inactive' }}
+                                    </span>
+                                </div>
+                            </td>
+
+                            <td>
                                 {{ $subcategory->created_at?->format('d M Y') ?? '—' }}
                             </td>
 
                             <td>
                                 <div class="action-buttons">
+
+                                    <form
+                                        action="{{ route('admin.subcategories.toggle-status', $subcategory) }}"
+                                        method="POST"
+                                        class="status-form"
+                                        data-name="{{ $subcategory->name }}"
+                                        data-active="{{ $subcategory->is_active ? '1' : '0' }}">
+                                        @csrf
+
+                                        <button
+                                            type="submit"
+                                            class="btn-status {{ $subcategory->is_active ? 'btn-deactivate' : 'btn-activate' }}">
+                                            {{ $subcategory->is_active ? 'Deactivate' : 'Activate' }}
+                                        </button>
+                                    </form>
+
                                     <a
                                         href="{{ route('admin.subcategories.edit', $subcategory) }}"
                                         class="btn-edit">
@@ -93,8 +126,7 @@
                                         action="{{ route('admin.subcategories.destroy', $subcategory) }}"
                                         method="POST"
                                         class="delete-subcategory-form"
-                                        data-subcategory="{{ $subcategory->name }}"
-                                        data-id="{{ $subcategory->id }}">
+                                        data-name="{{ $subcategory->name }}">
                                         @csrf
                                         @method('DELETE')
 
@@ -102,12 +134,13 @@
                                             Delete
                                         </button>
                                     </form>
+
                                 </div>
                             </td>
                         </tr>
                     @empty
-                        <tr id="empty-subcategories-row">
-                            <td colspan="6">
+                        <tr>
+                            <td colspan="7">
                                 <div class="empty-state">
                                     <div class="empty-icon">▤</div>
                                     <h3>No subcategories yet</h3>
@@ -221,7 +254,7 @@
 
     .table-responsive table {
         width: 100%;
-        min-width: 850px;
+        min-width: 1050px;
         border-collapse: collapse;
         text-align: left;
     }
@@ -292,10 +325,52 @@
         font-size: 17px;
     }
 
+    .status-wrapper {
+        display: flex;
+        align-items: center;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 11px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .status-active {
+        background: #e3f6e9;
+        color: #187443;
+    }
+
+    .status-active .status-dot {
+        background: #198754;
+    }
+
+    .status-inactive {
+        background: #fff0e8;
+        color: #b85c30;
+    }
+
+    .status-inactive .status-dot {
+        background: #dc6b35;
+    }
+
     .action-buttons {
         display: flex;
         align-items: center;
         gap: 8px;
+        flex-wrap: wrap;
     }
 
     .action-buttons form {
@@ -303,8 +378,11 @@
     }
 
     .btn-edit,
-    .btn-delete {
-        display: inline-block;
+    .btn-delete,
+    .btn-status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         border: 0;
         border-radius: 7px;
         padding: 8px 11px;
@@ -313,7 +391,7 @@
         cursor: pointer;
         text-decoration: none;
         white-space: nowrap;
-        transition: opacity 0.2s;
+        transition: opacity 0.2s, background 0.2s;
     }
 
     .btn-edit {
@@ -326,26 +404,27 @@
         color: #bc4545;
     }
 
-    .btn-edit:hover,
-    .btn-delete:hover {
-        opacity: 0.85;
+    .btn-activate {
+        background: #e3f6e9;
+        color: #187443;
     }
 
-    .alert-success,
+    .btn-deactivate {
+        background: #fff0e8;
+        color: #b85c30;
+    }
+
+    .btn-edit:hover,
+    .btn-delete:hover,
+    .btn-status:hover {
+        opacity: .8;
+    }
+
     .alert-error {
         padding: 13px 16px;
         border-radius: 9px;
         margin-bottom: 20px;
         font-size: 13px;
-    }
-
-    .alert-success {
-        color: #176b4d;
-        background: #e8f7ed;
-        border: 1px solid #c9ebd3;
-    }
-
-    .alert-error {
         color: #a52d2d;
         background: #fff0f0;
         border: 1px solid #f3d0d0;
@@ -414,77 +493,90 @@
     }
 </style>
 
+{{-- SweetAlert2 --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.delete-subcategory-form').forEach(function (form) {
+
+    // Show Laravel success messages with SweetAlert2.
+    const successElement = document.getElementById(
+        'subcategory-success-message'
+    );
+
+    if (successElement && typeof Swal !== 'undefined') {
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: successElement.dataset.message,
+            confirmButtonColor: '#176b4d',
+            confirmButtonText: 'OK'
+        });
+    }
+
+    // Activate / Deactivate confirmation.
+    document.querySelectorAll('.status-form').forEach(function (form) {
         form.addEventListener('submit', function (event) {
             event.preventDefault();
 
-            const name = form.dataset.subcategory || 'this subcategory';
-            const subcategoryId = form.dataset.id;
-            const actionUrl = form.action;
-
-            if (typeof Swal === 'undefined') {
-                if (confirm('Are you sure you want to delete "' + name + '"?')) {
-                    form.submit();
-                }
-                return;
-            }
+            const isActive = form.dataset.active === '1';
+            const name = form.dataset.name || 'this subcategory';
 
             Swal.fire({
-                title: 'Delete Subcategory?',
-                text: 'Are you sure you want to delete "' + name + '"?',
+                title: isActive
+                    ? 'Deactivate Subcategory?'
+                    : 'Activate Subcategory?',
+
+                text: isActive
+                    ? 'Are you sure you want to deactivate "' + name + '"?'
+                    : 'Are you sure you want to activate "' + name + '"?',
+
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#dc2626',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Yes, delete it!',
+                confirmButtonColor: isActive ? '#dc3545' : '#198754',
+                cancelButtonColor: '#6c757d',
+
+                confirmButtonText: isActive
+                    ? 'Yes, Deactivate'
+                    : 'Yes, Activate',
+
                 cancelButtonText: 'Cancel',
-                reverseButtons: true
+                reverseButtons: true,
+                focusCancel: true
             }).then(function (result) {
                 if (result.isConfirmed) {
-                    const row = document.getElementById('subcategory-row-' + subcategoryId);
-
-                    fetch(actionUrl, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json'
-                        },
-                        body: new URLSearchParams(new FormData(form))
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            if (row) {
-                                row.style.transition = 'opacity 0.35s ease';
-                                row.style.opacity = '0';
-                                setTimeout(() => row.remove(), 350);
-                            }
-
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Deleted!',
-                                text: data.message || 'Subcategory deleted successfully.',
-                                timer: 1600,
-                                showConfirmButton: false
-                            });
-                        } else {
-                            throw new Error(data.message || 'Failed to delete');
-                        }
-                    })
-                    .catch(err => {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: err.message || 'Something went wrong.'
-                        });
-                    });
+                    form.submit();
                 }
             });
         });
     });
+
+    // Delete confirmation.
+    document.querySelectorAll('.delete-subcategory-form').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const name = form.dataset.name || 'this subcategory';
+
+            Swal.fire({
+                title: 'Delete Subcategory?',
+                text: 'Are you sure you want to delete "' + name + '"? This action cannot be undone.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, Delete',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                focusCancel: true
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+
 });
 </script>
 @endsection

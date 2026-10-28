@@ -71,6 +71,9 @@ class SubcategoryController extends Controller
 
         $validated['slug'] = $this->uniqueSlug($slug);
 
+        // New subcategories are active by default.
+        $validated['is_active'] = true;
+
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')
                 ->store('subcategories', 'public');
@@ -183,6 +186,40 @@ class SubcategoryController extends Controller
     }
 
     /**
+     * Toggle subcategory active status.
+     */
+    public function toggleStatus(Subcategory $subcategory)
+    {
+        // Read the current value directly from the database.
+        $subcategory->refresh();
+
+        $currentStatus = (bool) $subcategory->is_active;
+
+        // Save the opposite status directly, without mass assignment.
+        $subcategory->is_active = ! $currentStatus;
+        $subcategory->save();
+
+        // Verify that the database contains the updated value.
+        $subcategory->refresh();
+
+        $newStatus = (bool) $subcategory->is_active;
+
+        if ($newStatus === $currentStatus) {
+            return redirect()
+                ->route('admin.subcategories.index')
+                ->with('error', 'Status could not be updated. Please try again.');
+        }
+
+        $message = $newStatus
+            ? 'Subcategory activated successfully.'
+            : 'Subcategory deactivated successfully.';
+
+        return redirect()
+            ->route('admin.subcategories.index')
+            ->with('success', $message);
+    }
+
+    /**
      * Delete a subcategory.
      */
     public function destroy(Request $request, Subcategory $subcategory)
@@ -219,11 +256,11 @@ class SubcategoryController extends Controller
 
         while (
             Subcategory::where('slug', $slug)
-            ->when(
-                $ignoreId !== null,
-                fn($query) => $query->where('id', '!=', $ignoreId)
-            )
-            ->exists()
+                ->when(
+                    $ignoreId !== null,
+                    fn ($query) => $query->where('id', '!=', $ignoreId)
+                )
+                ->exists()
         ) {
             $slug = $originalSlug . '-' . $counter;
             $counter++;

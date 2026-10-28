@@ -1,15 +1,5 @@
 @extends('layouts.frontend')
 
-@section('title', 'About Us – Trusted Solar Company in Kangra, HP')
-@section('meta_description', 'About ' . \App\Support\Seo::siteName() . ': ISO 9001:2015 certified, authorised Super Solar distributor in Kangra, HP, supplying and installing solar systems across Himachal.')
-
-@push('schema')
-{{ \App\Support\Seo::jsonLd(
-    \App\Support\Seo::webPage('AboutPage', 'About ' . \App\Support\Seo::siteName()),
-    \App\Support\Seo::breadcrumbs(['Home' => route('home'), 'About Us' => route('about')])
-) }}
-@endpush
-
 @section('content')
 @php
 $settings = \App\Models\SiteSetting::first();
@@ -74,18 +64,6 @@ $aboutImage = $settings?->about_image
             </div>
         </div>
 
-        <div class="se-corp-hero-caption">
-            <span class="se-corp-caption-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <circle cx="12" cy="12" r="4" />
-                    <path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" />
-                </svg>
-            </span>
-            <div>
-                <strong>Focused on practical solutions</strong>
-                <span>Quality, reliability and customer requirements</span>
-            </div>
-        </div>
     </div>
 </section>
 
@@ -135,27 +113,12 @@ $aboutImage = $settings?->about_image
 {{-- COMPANY INTRO --}}
 <section class="se-corp-about">
     <div class="se-corp-container se-corp-about-grid">
-
         <div class="se-corp-visual-column">
             <div class="se-corp-image-frame">
-                <img
-                    src="{{ $aboutImage }}"
-                    alt="Solar energy solutions from Suryaa Enterprises"
-                    loading="lazy">
-
-                <div class="se-corp-image-label">
-                    <span class="se-corp-image-label-icon">
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="m12 3 2.5 5.5L20 11l-5.5 2.5L12 19l-2.5-5.5L4 11l5.5-2.5L12 3Z" />
-                        </svg>
-                    </span>
-                    <div>
-                        <strong>Smarter Energy Choices</strong>
-                        <span>Solutions for your requirements</span>
-                    </div>
-                </div>
+                <img src="{{ $aboutImage }}"
+                     alt="Solar energy solutions from Suryaa Enterprises"
+                     loading="lazy">
             </div>
-
             <div class="se-corp-image-footnote">
                 <span></span>
                 Dependable products. Practical solutions.
@@ -164,13 +127,10 @@ $aboutImage = $settings?->about_image
 
         <div class="se-corp-about-copy">
             <span class="se-corp-section-tag">WHO WE ARE</span>
-
             <h2>{{ $heading }}</h2>
-
             <div class="se-corp-description">
                 {!! nl2br(e($description)) !!}
             </div>
-
             <div class="se-corp-highlight-list">
                 @foreach($highlights as $highlight)
                 <div class="se-corp-highlight">
@@ -183,7 +143,6 @@ $aboutImage = $settings?->about_image
                 </div>
                 @endforeach
             </div>
-
             <a href="{{ route('enquiry') }}" class="se-corp-inline-link">
                 Talk to Our Team
                 <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -308,7 +267,11 @@ $aboutImage = $settings?->about_image
         display: flex;
         align-items: center;
         overflow: hidden;
-        background: #163e36 url('{{ $aboutImage }}') center/cover no-repeat;
+        background-color: #163e36;
+        background-image: url('{{ $aboutImage }}');
+        background-position: center center;
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
         color: #fff;
     }
 
@@ -452,56 +415,6 @@ $aboutImage = $settings?->about_image
         color: #fff;
     }
 
-    .se-corp-hero-caption {
-        position: absolute;
-        right: 0;
-        bottom: 22px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 13px 16px;
-        border: 1px solid rgba(255, 255, 255, .19);
-        border-radius: 7px;
-        background: rgba(14, 35, 48, .68);
-        backdrop-filter: blur(8px);
-    }
-
-    .se-corp-caption-icon {
-        display: grid;
-        place-items: center;
-        width: 38px;
-        height: 38px;
-        border-radius: 5px;
-        background: rgba(200, 226, 210, .13);
-        color: #d8eee1;
-    }
-
-    .se-corp-caption-icon svg {
-        width: 21px;
-        height: 21px;
-        fill: none;
-        stroke: currentColor;
-        stroke-width: 1.6;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-    }
-
-    .se-corp-hero-caption strong,
-    .se-corp-hero-caption div span {
-        display: block;
-    }
-
-    .se-corp-hero-caption strong {
-        color: #fff;
-        font-size: 12px;
-    }
-
-    .se-corp-hero-caption div span {
-        margin-top: 5px;
-        color: rgba(255, 255, 255, .7);
-        font-size: 10px;
-    }
-
     /* TRUST STRIP */
     .se-corp-trust {
         background: #fff;
@@ -591,68 +504,21 @@ $aboutImage = $settings?->about_image
 
     .se-corp-image-frame {
         position: relative;
+        width: 100%;
         overflow: hidden;
         border-radius: 10px;
-        background: #e9efec;
+        background: #f5f7f6;
     }
 
+    /* Show the entire original image without cropping top or bottom. */
     .se-corp-image-frame>img {
         display: block;
         width: 100%;
-        height: 445px;
-        object-fit: cover;
-    }
-
-    .se-corp-image-label {
-        position: absolute;
-        right: 17px;
-        bottom: 17px;
-        left: 17px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 14px;
-        border: 1px solid rgba(255, 255, 255, .3);
-        border-radius: 7px;
-        background: rgba(20, 48, 54, .87);
-        backdrop-filter: blur(7px);
-    }
-
-    .se-corp-image-label-icon {
-        display: grid;
-        place-items: center;
-        flex: 0 0 40px;
-        width: 40px;
-        height: 40px;
-        border-radius: 5px;
-        background: rgba(200, 226, 210, .14);
-        color: #d5e9dc;
-    }
-
-    .se-corp-image-label-icon svg {
-        width: 21px;
-        height: 21px;
-        fill: none;
-        stroke: currentColor;
-        stroke-width: 1.5;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-    }
-
-    .se-corp-image-label strong,
-    .se-corp-image-label div span {
-        display: block;
-    }
-
-    .se-corp-image-label strong {
-        color: #fff;
-        font-size: 12px;
-    }
-
-    .se-corp-image-label div span {
-        margin-top: 5px;
-        color: rgba(255, 255, 255, .72);
-        font-size: 10px;
+        max-width: 100%;
+        height: auto !important;
+        max-height: none;
+        object-fit: contain;
+        object-position: center;
     }
 
     .se-corp-image-footnote {
@@ -975,7 +841,8 @@ $aboutImage = $settings?->about_image
 
         .se-corp-hero {
             min-height: 0;
-            background-position: 60% center;
+            background-position: center center;
+            background-size: 100% 100%;
         }
 
         .se-corp-hero-inner {
@@ -993,13 +860,6 @@ $aboutImage = $settings?->about_image
 
         .se-corp-hero-copy>p {
             font-size: 14px;
-        }
-
-        .se-corp-hero-caption {
-            right: auto;
-            bottom: 20px;
-            left: 0;
-            max-width: 100%;
         }
 
         .se-corp-trust-grid {
@@ -1027,10 +887,6 @@ $aboutImage = $settings?->about_image
         .se-corp-about-grid {
             grid-template-columns: 1fr;
             gap: 35px;
-        }
-
-        .se-corp-image-frame>img {
-            height: 320px;
         }
 
         .se-corp-solutions {
@@ -1084,9 +940,6 @@ $aboutImage = $settings?->about_image
             justify-content: space-between;
         }
 
-        .se-corp-image-frame>img {
-            height: 270px;
-        }
     }
 </style>
 @endpush

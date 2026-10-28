@@ -17,8 +17,9 @@ class Testimonial extends Model
     protected function casts(): array
     {
         return [
-            'rating' => 'integer',
+            'rating' => 'decimal:1',
             'is_active' => 'boolean',
         ];
     }
 }
+

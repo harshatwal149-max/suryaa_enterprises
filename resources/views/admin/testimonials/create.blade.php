@@ -1,3 +1,4 @@
+
 @extends('admin.layout')
 
 @section('page-title', 'Add Testimonial')
@@ -43,6 +44,12 @@
                 maxlength="255"
                 required
                 style="width:100%; padding:12px 14px; border:1px solid #d6d3d1; border-radius:8px; font-size:14px;">
+
+            @error('customer_name')
+                <small style="display:block; margin-top:6px; color:#dc2626;">
+                    {{ $message }}
+                </small>
+            @enderror
         </div>
 
         {{-- Designation --}}
@@ -60,6 +67,12 @@
                 placeholder="e.g. Business Owner"
                 maxlength="255"
                 style="width:100%; padding:12px 14px; border:1px solid #d6d3d1; border-radius:8px; font-size:14px;">
+
+            @error('designation')
+                <small style="display:block; margin-top:6px; color:#dc2626;">
+                    {{ $message }}
+                </small>
+            @enderror
         </div>
 
         {{-- Customer Review --}}
@@ -77,6 +90,12 @@
                 required
                 placeholder="Write the customer's review..."
                 style="width:100%; padding:12px 14px; border:1px solid #d6d3d1; border-radius:8px; font-size:14px; resize:vertical;">{{ old('review') }}</textarea>
+
+            @error('review')
+                <small style="display:block; margin-top:6px; color:#dc2626;">
+                    {{ $message }}
+                </small>
+            @enderror
         </div>
 
         {{-- Star Rating --}}
@@ -87,24 +106,42 @@
             </label>
 
             @php
-                $selectedRating = (string) old('rating', '5');
+                $ratingOptions = [
+                    '1.0' => '1.0 / 5 — ★',
+                    '1.5' => '1.5 / 5 — ★½',
+                    '2.0' => '2.0 / 5 — ★★',
+                    '2.5' => '2.5 / 5 — ★★½',
+                    '3.0' => '3.0 / 5 — ★★★',
+                    '3.5' => '3.5 / 5 — ★★★½',
+                    '4.0' => '4.0 / 5 — ★★★★',
+                    '4.5' => '4.5 / 5 — ★★★★½',
+                    '5.0' => '5.0 / 5 — ★★★★★',
+                ];
+
+                $selectedRating = (string) old('rating', '5.0');
             @endphp
 
             <select
                 id="rating"
                 name="rating"
                 required
+                class="@error('rating') is-invalid @enderror"
                 style="width:100%; padding:12px 14px; border:1px solid #d6d3d1; border-radius:8px; background:#fff; font-size:14px;">
 
-                @foreach ([1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5] as $rating)
+                @foreach ($ratingOptions as $value => $label)
                     <option
-                        value="{{ $rating }}"
-                        {{ $selectedRating === (string) $rating ? 'selected' : '' }}>
-                        {{ number_format($rating, 1) }} / 5
-                        — {{ str_repeat('★', (int) $rating) }}{{ $rating - (int) $rating === 0.5 ? '½' : '' }}
+                        value="{{ $value }}"
+                        {{ $selectedRating === $value ? 'selected' : '' }}>
+                        {{ $label }}
                     </option>
                 @endforeach
             </select>
+
+            @error('rating')
+                <small style="display:block; margin-top:6px; color:#dc2626;">
+                    {{ $message }}
+                </small>
+            @enderror
 
             <small style="display:block; margin-top:7px; color:#78716c; font-size:12px;">
                 Select a rating from 1 to 5, including half-star ratings such as 3.5 or 4.5.
@@ -135,6 +172,12 @@
                 </option>
             </select>
 
+            @error('is_active')
+                <small style="display:block; margin-top:6px; color:#dc2626;">
+                    {{ $message }}
+                </small>
+            @enderror
+
             <small style="display:block; margin-top:7px; color:#78716c; font-size:12px;">
                 Active testimonials can be displayed on the website.
             </small>
@@ -144,13 +187,13 @@
         <div style="display:flex; flex-wrap:wrap; gap:10px;">
             <button
                 type="submit"
-                style="padding:12px 22px; border:0; border-radius:8px; background:#065f46; color:#fff; font-size:13px; font-weight:600;">
+                style="padding:12px 22px; border:0; border-radius:8px; background:#065f46; color:#fff; font-size:13px; font-weight:600; cursor:pointer;">
                 Save Testimonial
             </button>
 
             <a
                 href="{{ route('admin.testimonials.index') }}"
-                style="display:inline-block; padding:12px 22px; border-radius:8px; background:#f5f5f4; color:#44403c; font-size:13px; font-weight:600;">
+                style="display:inline-block; padding:12px 22px; border-radius:8px; background:#f5f5f4; color:#44403c; font-size:13px; font-weight:600; text-decoration:none;">
                 Cancel
             </a>
         </div>
