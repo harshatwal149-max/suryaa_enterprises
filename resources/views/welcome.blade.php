@@ -80,6 +80,16 @@
                     </div>
                 </div>
 
+
+                <div class="sh-success" role="status" aria-live="polite" hidden>
+                    <svg class="sh-success-check" viewBox="0 0 52 52" aria-hidden="true">
+                        <circle cx="26" cy="26" r="24" fill="none" />
+                        <path fill="none" d="M15 27l7 7 15-15" />
+                    </svg>
+                    <h3>Thank you!</h3>
+                    <p>Your request has been received. Our team will call you shortly.</p>
+                </div>
+
                 <form action="{{ route('enquiry.store') }}" method="POST" class="sh-form" id="sh-quote-form" novalidate>
                     @csrf
 
@@ -116,16 +126,6 @@
 
                     <p class="sh-form-note"><i class="fa-solid fa-lock" aria-hidden="true"></i> Your details are only used to contact you.</p>
                 </form>
-
-                <div class="sh-success" role="status" aria-live="polite" hidden>
-                    <svg class="sh-success-check" viewBox="0 0 52 52" aria-hidden="true">
-                        <circle cx="26" cy="26" r="24" fill="none" />
-                        <path fill="none" d="M15 27l7 7 15-15" />
-                    </svg>
-                    <h3>Thank you!</h3>
-                    <p>Your request has been received. Our team will call you shortly.</p>
-                    <button type="button" class="sh-success-reset">Send another request</button>
-                </div>
             </div>
         </div>
     </div>
@@ -1126,15 +1126,17 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
 
     /* Success state with a drawn checkmark */
     .sh-success {
-        padding: 18px 0 6px;
+        padding: 0 0 16px;
+        scroll-margin-top: 110px;
         text-align: center;
         animation: shRise .6s ease both;
     }
 
     .sh-success-check {
-        width: 76px;
-        height: 76px;
-        margin-bottom: 14px;
+        display: block;
+        width: 44px;
+        height: 44px;
+        margin: 0 auto 8px;
         stroke: #34d399;
         stroke-width: 3;
         stroke-linecap: round;
@@ -1160,32 +1162,16 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
     }
 
     .sh-success h3 {
-        margin: 0 0 8px;
+        margin: 0 0 4px;
         color: #fff;
-        font-size: 22px;
+        font-size: 18px;
     }
 
     .sh-success p {
-        margin: 0 0 20px;
+        margin: 0;
         color: rgba(255, 255, 255, .75);
         font-size: 14px;
         line-height: 1.6;
-    }
-
-    .sh-success-reset {
-        padding: 10px 18px;
-        border: 1px solid rgba(255, 255, 255, .3);
-        border-radius: 10px;
-        background: transparent;
-        color: #fff;
-        font: inherit;
-        font-size: 13px;
-        font-weight: 700;
-        cursor: pointer;
-    }
-
-    .sh-success-reset:hover {
-        background: rgba(255, 255, 255, .1);
     }
 
     /* Bottom navigation: numbered tabs with autoplay progress */
@@ -3165,8 +3151,10 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
 
                     if (!response.ok) throw new Error('Request failed');
 
-                    quoteForm.hidden = true;
+                    // Keep the form on screen, emptied, with the thank-you above it.
+                    quoteForm.reset();
                     success.hidden = false;
+                    success.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 } catch (error) {
                     // Fall back to a normal form post if AJAX fails.
                     HTMLFormElement.prototype.submit.call(quoteForm);
@@ -3176,11 +3164,9 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
                 }
             });
 
-            success.querySelector('.sh-success-reset').addEventListener('click', function() {
-                quoteForm.reset();
+            // The thank-you belongs to the last request; clear it once a new one starts.
+            quoteForm.addEventListener('input', function() {
                 success.hidden = true;
-                quoteForm.hidden = false;
-                quoteForm.elements.namedItem('name').focus();
             });
         }
 

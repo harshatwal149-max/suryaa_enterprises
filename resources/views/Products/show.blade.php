@@ -257,6 +257,18 @@ $specs = array_filter([
                     </div>
                 </div>
 
+
+                <div class="pd-success" id="pd-enquiry-success" hidden tabindex="-1">
+                    <span class="pd-success-icon" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+                    <h3>Thank you! Enquiry sent.</h3>
+                    <p>Our solar expert will contact you shortly about <strong>{{ $product->name }}</strong>.</p>
+                    @if (!empty($whatsappNumber))
+                    <a href="https://wa.me/{{ $whatsappNumber }}?text={{ rawurlencode($whatsappMessage) }}" class="pd-btn pd-btn-whatsapp" target="_blank" rel="noopener">
+                        <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Need it faster? WhatsApp us
+                    </a>
+                    @endif
+                </div>
+
                 <form action="{{ route('enquiry.store') }}" method="POST" class="pd-form" id="pd-enquiry-form" novalidate>
                     @csrf
                     <input type="hidden" name="product_id" value="{{ $product->id }}">
@@ -297,18 +309,6 @@ $specs = array_filter([
 
                     <p class="pd-privacy"><i class="fa-solid fa-lock" aria-hidden="true"></i> Your details are safe with us. No spam, ever.</p>
                 </form>
-
-                <div class="pd-success" id="pd-enquiry-success" hidden tabindex="-1">
-                    <span class="pd-success-icon" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
-                    <h3>Thank you! Enquiry sent.</h3>
-                    <p>Our solar expert will contact you shortly about <strong>{{ $product->name }}</strong>.</p>
-                    @if (!empty($whatsappNumber))
-                    <a href="https://wa.me/{{ $whatsappNumber }}?text={{ rawurlencode($whatsappMessage) }}" class="pd-btn pd-btn-whatsapp" target="_blank" rel="noopener">
-                        <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Need it faster? WhatsApp us
-                    </a>
-                    @endif
-                    <button type="button" class="pd-link-btn" data-enquiry-reset>Send another enquiry</button>
-                </div>
             </div>
         </aside>
     </div>
@@ -1091,7 +1091,8 @@ $specs = array_filter([
     }
 
     .pd-success {
-        padding: 34px 24px 28px;
+        padding: 22px 24px 8px;
+        scroll-margin-top: 110px;
         text-align: center;
     }
 
@@ -1099,14 +1100,14 @@ $specs = array_filter([
 
     .pd-success-icon {
         display: inline-grid;
-        width: 64px;
-        height: 64px;
+        width: 44px;
+        height: 44px;
         place-items: center;
-        margin-bottom: 14px;
+        margin-bottom: 10px;
         border-radius: 50%;
         background: #dcfce7;
         color: #15803d;
-        font-size: 28px;
+        font-size: 20px;
         animation: pdPop .4s ease;
     }
 
@@ -1122,22 +1123,10 @@ $specs = array_filter([
     }
 
     .pd-success p {
-        margin: 0 0 18px;
+        margin: 0 0 14px;
         color: #64748b;
         font-size: 14px;
         line-height: 1.6;
-    }
-
-    .pd-link-btn {
-        display: block;
-        margin: 14px auto 0;
-        border: 0;
-        background: none;
-        color: #047857;
-        font-size: 13px;
-        font-weight: 700;
-        cursor: pointer;
-        text-decoration: underline;
     }
 
     /* Related */
@@ -1435,7 +1424,7 @@ $specs = array_filter([
                 if (!target) return;
                 e.preventDefault();
                 target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                if (form && !form.hidden) {
+                if (form) {
                     setTimeout(function () { form.querySelector('[name="name"]').focus({ preventScroll: true }); }, 500);
                 }
             });
@@ -1516,9 +1505,13 @@ $specs = array_filter([
                     throw new Error(result.data.message || 'Something went wrong. Please try again.');
                 }
 
-                form.hidden = true;
+                // Keep the form on screen, emptied, with the thank-you above it.
+                form.reset();
+                field('message').value = defaultMessage;
+                clearErrors();
                 success.hidden = false;
-                success.focus();
+                success.focus({ preventScroll: true });
+                success.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             })
             .catch(function (err) {
                 if (window.toastr) {
@@ -1537,17 +1530,10 @@ $specs = array_filter([
             field.addEventListener('input', function () { setError(field.name, ''); });
         });
 
-        var reset = document.querySelector('[data-enquiry-reset]');
-        if (reset) {
-            reset.addEventListener('click', function () {
-                form.reset();
-                field('message').value = defaultMessage;
-                clearErrors();
-                success.hidden = true;
-                form.hidden = false;
-                field('name').focus();
-            });
-        }
+        // The thank-you belongs to the last enquiry; clear it once a new one starts.
+        form.addEventListener('input', function () {
+            success.hidden = true;
+        });
     })();
 </script>
 @endpush

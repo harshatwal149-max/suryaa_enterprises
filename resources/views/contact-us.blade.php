@@ -106,6 +106,16 @@ $socials = collect([
                 <p>Fill in your details and we’ll call you back. Email is optional.</p>
             </div>
 
+
+            <div class="ct-success" role="status" aria-live="polite" hidden>
+                <svg class="ct-success-check" viewBox="0 0 52 52" aria-hidden="true">
+                    <circle cx="26" cy="26" r="24" fill="none" />
+                    <path fill="none" d="M15 27l7 7 15-15" />
+                </svg>
+                <h3>Message sent!</h3>
+                <p data-success-text>Thank you! Our team will contact you shortly.</p>
+            </div>
+
             <form action="{{ route('contact.store') }}" method="POST" class="ct-form" id="ct-form" novalidate>
                 @csrf
 
@@ -163,16 +173,6 @@ $socials = collect([
 
                 <p class="ct-privacy"><i class="fa-solid fa-lock" aria-hidden="true"></i> Your details are only used to respond to your enquiry.</p>
             </form>
-
-            <div class="ct-success" role="status" aria-live="polite" hidden>
-                <svg class="ct-success-check" viewBox="0 0 52 52" aria-hidden="true">
-                    <circle cx="26" cy="26" r="24" fill="none" />
-                    <path fill="none" d="M15 27l7 7 15-15" />
-                </svg>
-                <h3>Message sent!</h3>
-                <p data-success-text>Thank you! Our team will contact you shortly.</p>
-                <button type="button" class="ct-success-reset">Send another message</button>
-            </div>
         </div>
 
         <aside class="ct-info">
@@ -690,15 +690,17 @@ $socials = collect([
     }
 
     .ct-success {
-        padding: 30px 0 10px;
+        padding: 0 0 20px;
+        scroll-margin-top: 110px;
         text-align: center;
         animation: ctRise .6s ease both;
     }
 
     .ct-success-check {
-        width: 84px;
-        height: 84px;
-        margin-bottom: 14px;
+        display: block;
+        width: 44px;
+        height: 44px;
+        margin: 0 auto 8px;
         stroke: #0f7a3d;
         stroke-width: 3;
         stroke-linecap: round;
@@ -736,33 +738,17 @@ $socials = collect([
     }
 
     .ct-success h3 {
-        margin: 0 0 8px;
+        margin: 0 0 4px;
         color: #172d25;
-        font-size: 24px;
+        font-size: 20px;
     }
 
     .ct-success p {
-        margin: 0 auto 22px;
+        margin: 0 auto;
         max-width: 380px;
         color: #65756d;
         font-size: 15px;
         line-height: 1.6;
-    }
-
-    .ct-success-reset {
-        padding: 11px 20px;
-        border: 1.5px solid #cfe3d6;
-        border-radius: 10px;
-        background: #fff;
-        color: #0f7a3d;
-        font: inherit;
-        font-size: 14px;
-        font-weight: 700;
-        cursor: pointer;
-    }
-
-    .ct-success-reset:hover {
-        background: #f0f7f2;
     }
 
     /* Info column */
@@ -1016,7 +1002,6 @@ $socials = collect([
     .ct-quick-card a:focus-visible,
     .ct-btn:focus-visible,
     .ct-submit:focus-visible,
-    .ct-success-reset:focus-visible,
     .ct-socials a:focus-visible {
         outline: 3px solid #fbbf24;
         outline-offset: 3px;
@@ -1198,9 +1183,11 @@ $socials = collect([
 
                 const data = await response.json();
                 success.querySelector('[data-success-text]').textContent = data.message;
-                form.hidden = true;
-                form.closest('.ct-form-card').querySelector('.ct-form-head').hidden = true;
+                // Keep the form on screen, emptied, with the thank-you above it.
+                form.reset();
+                updateCounter();
                 success.hidden = false;
+                success.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             } catch (error) {
                 // Fall back to a normal form post if AJAX fails.
                 HTMLFormElement.prototype.submit.call(form);
@@ -1210,13 +1197,9 @@ $socials = collect([
             }
         });
 
-        success.querySelector('.ct-success-reset').addEventListener('click', function() {
-            form.reset();
-            updateCounter();
+        // The thank-you belongs to the last message; clear it once a new one starts.
+        form.addEventListener('input', function() {
             success.hidden = true;
-            form.hidden = false;
-            form.closest('.ct-form-card').querySelector('.ct-form-head').hidden = false;
-            field('name').focus();
         });
 
         // Non-JS fallback toast.
