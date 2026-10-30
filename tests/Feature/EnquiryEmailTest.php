@@ -95,6 +95,16 @@ class EnquiryEmailTest extends TestCase
         $this->assertDatabaseCount('enquiries', 0);
     }
 
+    public function test_contact_form_honeypot_saves_nothing_and_sends_no_email(): void
+    {
+        Mail::fake();
+
+        $this->post(route('contact.store'), $this->enquiry + ['website' => 'http://spam.example'])->assertRedirect();
+
+        Mail::assertNothingOutgoing();
+        $this->assertDatabaseCount('enquiries', 0);
+    }
+
     public function test_enquiry_email_is_stored_in_the_queue_and_delivered_by_the_worker(): void
     {
         config(['queue.default' => 'database', 'mail.default' => 'array']);

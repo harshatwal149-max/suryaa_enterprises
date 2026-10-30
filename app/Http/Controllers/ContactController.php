@@ -26,6 +26,15 @@ class ContactController extends Controller
 
     public function submit(Request $request)
     {
+        $successMessage = 'Thank you! Your message has been received. Our team will contact you shortly.';
+
+        // Honeypot: real visitors never see or fill this field, bots do.
+        if (filled($request->input('website'))) {
+            return $request->ajax()
+                ? response()->json(['success' => true, 'message' => $successMessage])
+                : back()->with('contact_success', $successMessage);
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'email' => ['nullable', 'email', 'max:150'],
@@ -47,8 +56,6 @@ class ContactController extends Controller
         ]);
 
         EnquiryNotifier::send($enquiry, 'Contact Us page');
-
-        $successMessage = 'Thank you! Your message has been received. Our team will contact you shortly.';
 
         if ($request->ajax()) {
             return response()->json([
