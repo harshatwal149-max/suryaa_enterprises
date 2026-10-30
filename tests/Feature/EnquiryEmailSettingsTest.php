@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\SiteSetting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class EnquiryEmailSettingsTest extends TestCase
@@ -64,6 +65,28 @@ class EnquiryEmailSettingsTest extends TestCase
             ->from(route('admin.settings.contact'))
             ->put(route('admin.settings.contact.update'), ['enquiry_emails' => $emails])
             ->assertSessionHasErrors('enquiry_emails');
+    }
+
+    public function test_enquiries_page_warns_about_a_delayed_email(): void
+    {
+        DB::table('jobs')->insert([
+            'queue' => 'default',
+            'payload' => '{"displayName":"App\\\\Mail\\\\NewEnquiryMail"}',
+            'attempts' => 0,
+            'available_at' => now()->getTimestamp(),
+            'created_at' => now()->subMinutes(11)->getTimestamp(),
+        ]);
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.enquiries.index'))
+            ->assertSee('1 enquiry email has not been delivered yet');
+    }
+
+    public function test_enquiries_page_has_no_warning_when_mail_is_healthy(): void
+    {
+        $this->actingAs($this->admin())
+            ->get(route('admin.enquiries.index'))
+            ->assertDontSee('not been delivered yet');
     }
 
     public function test_guests_cannot_change_enquiry_emails(): void

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Enquiry;
+use App\Support\EnquiryNotifier;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,7 +18,9 @@ class EnquiryController extends Controller
     {
         $enquiries = Enquiry::latest()->paginate(15);
 
-        return view('admin.enquiries.index', compact('enquiries'));
+        $undeliveredEmails = EnquiryNotifier::undeliveredCount();
+
+        return view('admin.enquiries.index', compact('enquiries', 'undeliveredEmails'));
     }
 
     /**
@@ -39,8 +42,8 @@ class EnquiryController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,
-                'status'  => $enquiry->status,
-                'message' => 'Enquiry status updated to ' . ucfirst($enquiry->status) . '.',
+                'status' => $enquiry->status,
+                'message' => 'Enquiry status updated to '.ucfirst($enquiry->status).'.',
             ]);
         }
 

@@ -4,7 +4,9 @@ namespace App\Mail;
 
 use App\Models\Enquiry;
 use App\Models\SiteSetting;
+use DateTimeInterface;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
@@ -12,9 +14,21 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 
-class NewEnquiryMail extends Mailable
+class NewEnquiryMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
+
+    /**
+     * Seconds to wait before each retry; the last value repeats until retryUntil().
+     *
+     * @var array<int, int>
+     */
+    public array $backoff = [60, 300, 900, 3600];
+
+    /**
+     * An enquiry deleted in Admin no longer needs its email.
+     */
+    public bool $deleteWhenMissingModels = true;
 
     /**
      * Create a new message instance.
@@ -24,6 +38,14 @@ class NewEnquiryMail extends Mailable
         public string $source,
         public ?SiteSetting $settings = null,
     ) {}
+
+    /**
+     * Keep retrying through long SMTP outages before giving up.
+     */
+    public function retryUntil(): DateTimeInterface
+    {
+        return now()->addDays(3);
+    }
 
     /**
      * Get the message envelope.
