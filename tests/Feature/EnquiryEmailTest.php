@@ -46,6 +46,34 @@ class EnquiryEmailTest extends TestCase
             && $mail->source === 'Contact Us page');
     }
 
+    public function test_each_enquiry_recipient_gets_an_email_instead_of_the_business_email(): void
+    {
+        Mail::fake();
+        SiteSetting::create([
+            'site_name' => 'Suryaa',
+            'email' => 'owner@example.com',
+            'enquiry_emails' => ['sales@example.com', 'manager@example.com'],
+        ]);
+
+        $this->post(route('enquiry.store'), $this->enquiry);
+
+        Mail::assertSentCount(2);
+        Mail::assertSent(NewEnquiryMail::class, fn (NewEnquiryMail $mail) => $mail->hasTo('sales@example.com'));
+        Mail::assertSent(NewEnquiryMail::class, fn (NewEnquiryMail $mail) => $mail->hasTo('manager@example.com'));
+    }
+
+    public function test_one_failed_recipient_does_not_block_the_others(): void
+    {
+        SiteSetting::create(['site_name' => 'Suryaa', 'enquiry_emails' => ['bad@example.com', 'good@example.com']]);
+
+        Mail::shouldReceive('to')->once()->with('bad@example.com')->andThrow(new RuntimeException('Rejected'));
+        Mail::shouldReceive('to')->once()->with('good@example.com')->andReturnSelf();
+        Mail::shouldReceive('send')->once();
+        Log::shouldReceive('error')->once();
+
+        $this->post(route('enquiry.store'), $this->enquiry)->assertRedirect();
+    }
+
     public function test_email_falls_back_to_the_from_address_without_a_business_email(): void
     {
         Mail::fake();

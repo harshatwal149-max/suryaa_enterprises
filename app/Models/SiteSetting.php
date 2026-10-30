@@ -26,6 +26,7 @@ class SiteSetting extends Model
         'phone_secondary',
         'phone_tertiary',
         'email',
+        'enquiry_emails',
         'address',
         'gst_number',
         'whatsapp_number',
@@ -65,6 +66,7 @@ class SiteSetting extends Model
     {
         return [
             'show_product_prices' => 'boolean',
+            'enquiry_emails' => 'array',
         ];
     }
 
@@ -84,6 +86,16 @@ class SiteSetting extends Model
     public function whatsappDigits(): string
     {
         return static::toWhatsappDigits((string) $this->whatsapp_number);
+    }
+
+    /**
+     * Who receives enquiry emails: the list set in Admin, else the Business Email.
+     *
+     * @return array<int, string>
+     */
+    public function enquiryRecipients(): array
+    {
+        return $this->enquiry_emails ?: array_filter([$this->email]);
     }
 
     /**

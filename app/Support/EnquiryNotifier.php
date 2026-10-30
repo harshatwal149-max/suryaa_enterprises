@@ -9,26 +9,25 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 /**
- * Emails new enquiries to the business email set in Admin → Settings.
+ * Emails new enquiries to the recipients set in Admin → Contact Details.
  */
 class EnquiryNotifier
 {
     /**
      * Best-effort: the enquiry is already saved, so a mail failure must not fail the form.
+     * Each recipient gets a separate email, so one bad address cannot block the others.
      */
     public static function send(Enquiry $enquiry, string $source): void
     {
         $settings = SiteSetting::first();
-        $recipient = $settings?->email ?: config('mail.from.address');
+        $recipients = $settings?->enquiryRecipients() ?: array_filter([config('mail.from.address')]);
 
-        if (! $recipient) {
-            return;
-        }
-
-        try {
-            Mail::to($recipient)->send(new NewEnquiryMail($enquiry, $source, $settings));
-        } catch (\Throwable $e) {
-            Log::error('Enquiry #'.$enquiry->id.' email failed: '.$e->getMessage());
+        foreach ($recipients as $recipient) {
+            try {
+                Mail::to($recipient)->send(new NewEnquiryMail($enquiry, $source, $settings));
+            } catch (\Throwable $e) {
+                Log::error('Enquiry #'.$enquiry->id.' email to '.$recipient.' failed: '.$e->getMessage());
+            }
         }
     }
 }
