@@ -109,6 +109,11 @@ $socials = collect([
             <form action="{{ route('contact.store') }}" method="POST" class="ct-form" id="ct-form" novalidate>
                 @csrf
 
+                {{-- Honeypot for spam bots; hidden from people and screen readers --}}
+                <div aria-hidden="true" style="position:absolute;left:-9999px;">
+                    <label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+                </div>
+
                 <div class="ct-row">
                     <div class="ct-field {{ $errors->has('name') ? 'has-error' : '' }}">
                         <input id="ct-name" name="name" type="text" value="{{ old('name') }}" maxlength="100" autocomplete="name" placeholder=" " required>

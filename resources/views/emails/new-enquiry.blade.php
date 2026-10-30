@@ -13,8 +13,6 @@
     <title>New enquiry from {{ $enquiry->name }}</title>
 </head>
 <body style="margin:0;padding:0;background:#eef2ef;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-    <div style="display:none;max-height:0;overflow:hidden;opacity:0;">{{ $enquiry->name }} · {{ $enquiry->phone }} · {{ $source }}</div>
-
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef2ef;">
         <tr>
             <td align="center" style="padding:28px 12px;">
