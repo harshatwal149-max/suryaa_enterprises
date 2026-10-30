@@ -13,4 +13,12 @@ class Enquiry extends Model
         'message',
         'status',
     ];
+
+    /**
+     * Customer's phone as digits with country code, ready for wa.me links.
+     */
+    public function whatsappDigits(): string
+    {
+        return SiteSetting::toWhatsappDigits($this->phone);
+    }
 }

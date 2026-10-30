@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Enquiry;
 use App\Models\Product;
+use App\Support\EnquiryNotifier;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -17,14 +18,14 @@ class EnquiryController extends Controller
         if (filled($request->input('website'))) {
             return $request->ajax()
                 ? response()->json(['success' => true, 'message' => $successMessage])
-                : redirect()->to(url('/') . '#enquiry')->with('success', $successMessage);
+                : redirect()->to(url('/').'#enquiry')->with('success', $successMessage);
         }
 
         $validated = $request->validate([
-            'name'       => ['required', 'string', 'max:100'],
-            'phone'      => ['required', 'string', 'max:20', 'regex:/^[0-9+\-\s()]{7,20}$/'],
-            'email'      => ['nullable', 'email', 'max:255'],
-            'message'    => ['required', 'string', 'max:5000'],
+            'name' => ['required', 'string', 'max:100'],
+            'phone' => ['required', 'string', 'max:20', 'regex:/^[0-9+\-\s()]{7,20}$/'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'message' => ['required', 'string', 'max:5000'],
             'product_id' => ['nullable', 'integer'],
         ], [
             'phone.regex' => 'Please enter a valid phone number.',
@@ -36,15 +37,17 @@ class EnquiryController extends Controller
             : null;
 
         if ($product) {
-            $validated['message'] = 'Product: ' . $product->name
-                . ($product->sku ? ' (SKU: ' . $product->sku . ')' : '') . "\n"
-                . route('products.show', ['slug' => $product->slug]) . "\n\n"
-                . $validated['message'];
+            $validated['message'] = 'Product: '.$product->name
+                .($product->sku ? ' (SKU: '.$product->sku.')' : '')."\n"
+                .route('products.show', ['slug' => $product->slug])."\n\n"
+                .$validated['message'];
         }
 
         unset($validated['product_id']);
 
-        Enquiry::create($validated);
+        $enquiry = Enquiry::create($validated);
+
+        EnquiryNotifier::send($enquiry, $product ? 'Product page' : 'Enquiry form');
 
         if ($request->ajax()) {
             return response()->json([
@@ -54,7 +57,7 @@ class EnquiryController extends Controller
         }
 
         return redirect()
-            ->to(url('/') . '#enquiry')
+            ->to(url('/').'#enquiry')
             ->with('success', $successMessage);
     }
 }

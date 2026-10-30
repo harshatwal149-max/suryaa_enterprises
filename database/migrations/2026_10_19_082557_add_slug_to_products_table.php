@@ -30,7 +30,7 @@ return new class extends Migration
                     $baseSlug = Str::slug($product->name ?? '');
 
                     if ($baseSlug === '') {
-                        $baseSlug = 'product-' . $product->id;
+                        $baseSlug = 'product-'.$product->id;
                     }
 
                     $slug = $baseSlug;
@@ -41,7 +41,7 @@ return new class extends Migration
                             ->where('slug', $slug)
                             ->exists()
                     ) {
-                        $slug = $baseSlug . '-' . $counter;
+                        $slug = $baseSlug.'-'.$counter;
                         $counter++;
                     }
 
@@ -52,11 +52,7 @@ return new class extends Migration
             });
 
         // Add unique index only if one does not already exist.
-        $indexExists = collect(
-            DB::select("SHOW INDEX FROM products")
-        )->contains(function ($index) {
-            return $index->Key_name === 'products_slug_unique';
-        });
+        $indexExists = Schema::hasIndex('products', 'products_slug_unique');
 
         if (! $indexExists) {
             Schema::table('products', function (Blueprint $table) {
@@ -70,11 +66,7 @@ return new class extends Migration
         // Keep the existing slug column and data intact.
         // The column may have existed before this migration.
         if (Schema::hasColumn('products', 'slug')) {
-            $indexExists = collect(
-                DB::select("SHOW INDEX FROM products")
-            )->contains(function ($index) {
-                return $index->Key_name === 'products_slug_unique';
-            });
+            $indexExists = Schema::hasIndex('products', 'products_slug_unique');
 
             if ($indexExists) {
                 Schema::table('products', function (Blueprint $table) {
