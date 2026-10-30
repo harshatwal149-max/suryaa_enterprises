@@ -19,6 +19,12 @@
         </div>
     </div>
 
+    @if ($undeliveredEmails > 0)
+    <div class="enquiry-alert enquiry-alert-error">
+        {{ $undeliveredEmails }} enquiry {{ Str::plural('email', $undeliveredEmails) }} {{ $undeliveredEmails === 1 ? 'has' : 'have' }} not been delivered yet. Your enquiries are safe below. Please check the Hostinger Cron Job and SMTP settings.
+    </div>
+    @endif
+
     @if (session('success'))
     <div class="enquiry-alert enquiry-alert-success">
         {{ session('success') }}

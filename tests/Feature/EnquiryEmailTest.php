@@ -6,6 +6,7 @@ use App\Mail\NewEnquiryMail;
 use App\Models\Enquiry;
 use App\Models\SiteSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use RuntimeException;
@@ -29,7 +30,7 @@ class EnquiryEmailTest extends TestCase
 
         $this->post(route('enquiry.store'), $this->enquiry)->assertRedirect();
 
-        Mail::assertSent(NewEnquiryMail::class, fn (NewEnquiryMail $mail) => $mail->hasTo('owner@example.com')
+        Mail::assertQueued(NewEnquiryMail::class, fn (NewEnquiryMail $mail) => $mail->hasTo('owner@example.com')
             && $mail->enquiry->is(Enquiry::first())
             && $mail->source === 'Enquiry form');
     }
@@ -41,7 +42,7 @@ class EnquiryEmailTest extends TestCase
 
         $this->post(route('contact.store'), $this->enquiry + ['interest' => 'Rooftop solar'])->assertRedirect();
 
-        Mail::assertSent(NewEnquiryMail::class, fn (NewEnquiryMail $mail) => $mail->hasTo('owner@example.com')
+        Mail::assertQueued(NewEnquiryMail::class, fn (NewEnquiryMail $mail) => $mail->hasTo('owner@example.com')
             && str_contains($mail->enquiry->message, 'Interested in: Rooftop solar')
             && $mail->source === 'Contact Us page');
     }
@@ -57,9 +58,9 @@ class EnquiryEmailTest extends TestCase
 
         $this->post(route('enquiry.store'), $this->enquiry);
 
-        Mail::assertSentCount(2);
-        Mail::assertSent(NewEnquiryMail::class, fn (NewEnquiryMail $mail) => $mail->hasTo('sales@example.com'));
-        Mail::assertSent(NewEnquiryMail::class, fn (NewEnquiryMail $mail) => $mail->hasTo('manager@example.com'));
+        Mail::assertQueuedCount(2);
+        Mail::assertQueued(NewEnquiryMail::class, fn (NewEnquiryMail $mail) => $mail->hasTo('sales@example.com'));
+        Mail::assertQueued(NewEnquiryMail::class, fn (NewEnquiryMail $mail) => $mail->hasTo('manager@example.com'));
     }
 
     public function test_one_failed_recipient_does_not_block_the_others(): void
@@ -81,7 +82,7 @@ class EnquiryEmailTest extends TestCase
 
         $this->post(route('enquiry.store'), $this->enquiry);
 
-        Mail::assertSent(NewEnquiryMail::class, fn (NewEnquiryMail $mail) => $mail->hasTo('fallback@example.com'));
+        Mail::assertQueued(NewEnquiryMail::class, fn (NewEnquiryMail $mail) => $mail->hasTo('fallback@example.com'));
     }
 
     public function test_honeypot_submission_sends_no_email(): void
@@ -90,8 +91,42 @@ class EnquiryEmailTest extends TestCase
 
         $this->post(route('enquiry.store'), $this->enquiry + ['website' => 'http://spam.example']);
 
-        Mail::assertNothingSent();
+        Mail::assertNothingOutgoing();
         $this->assertDatabaseCount('enquiries', 0);
+    }
+
+    public function test_enquiry_email_is_stored_in_the_queue_and_delivered_by_the_worker(): void
+    {
+        config(['queue.default' => 'database', 'mail.default' => 'array']);
+        SiteSetting::create(['site_name' => 'Suryaa', 'email' => 'owner@example.com']);
+
+        $this->post(route('enquiry.store'), $this->enquiry)->assertRedirect();
+        $this->assertDatabaseCount('jobs', 1);
+
+        $this->artisan('queue:work', ['--once' => true]);
+
+        $this->assertDatabaseCount('jobs', 0);
+        $this->assertDatabaseCount('failed_jobs', 0);
+        $this->assertCount(1, Mail::mailer('array')->getSymfonyTransport()->messages());
+    }
+
+    public function test_smtp_failure_keeps_the_email_queued_for_a_retry(): void
+    {
+        config([
+            'queue.default' => 'database',
+            'mail.mailers.smtp.host' => '127.0.0.1',
+            'mail.mailers.smtp.port' => 1,
+            'mail.mailers.smtp.timeout' => 1,
+            'mail.default' => 'smtp',
+        ]);
+        SiteSetting::create(['site_name' => 'Suryaa', 'email' => 'owner@example.com']);
+
+        $this->post(route('enquiry.store'), $this->enquiry)->assertRedirect();
+        $this->artisan('queue:work', ['--once' => true]);
+
+        $this->assertDatabaseCount('failed_jobs', 0);
+        $this->assertDatabaseCount('jobs', 1);
+        $this->assertGreaterThan(now()->getTimestamp(), DB::table('jobs')->value('available_at'));
     }
 
     public function test_mail_failure_still_saves_the_enquiry_and_succeeds(): void
