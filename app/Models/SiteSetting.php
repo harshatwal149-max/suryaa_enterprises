@@ -83,8 +83,16 @@ class SiteSetting extends Model
      */
     public function whatsappDigits(): string
     {
-        $digits = preg_replace('/\D+/', '', (string) $this->whatsapp_number);
+        return static::toWhatsappDigits((string) $this->whatsapp_number);
+    }
 
-        return strlen($digits) === 10 ? '91' . $digits : $digits;
+    /**
+     * Strips a phone number to digits and prefixes 91 to 10-digit Indian mobiles.
+     */
+    public static function toWhatsappDigits(string $number): string
+    {
+        $digits = preg_replace('/\D+/', '', $number);
+
+        return strlen($digits) === 10 ? '91'.$digits : $digits;
     }
 }

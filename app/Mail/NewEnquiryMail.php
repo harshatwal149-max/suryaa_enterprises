@@ -1,0 +1,66 @@
+<?php
+
+namespace App\Mail;
+
+use App\Models\Enquiry;
+use App\Models\SiteSetting;
+use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
+
+class NewEnquiryMail extends Mailable
+{
+    use Queueable, SerializesModels;
+
+    /**
+     * Create a new message instance.
+     */
+    public function __construct(
+        public Enquiry $enquiry,
+        public string $source,
+        public ?SiteSetting $settings = null,
+    ) {}
+
+    /**
+     * Get the message envelope.
+     */
+    public function envelope(): Envelope
+    {
+        return new Envelope(
+            subject: 'New enquiry from '.$this->enquiry->name,
+            replyTo: filled($this->enquiry->email)
+                ? [new Address($this->enquiry->email, $this->enquiry->name)]
+                : [],
+        );
+    }
+
+    /**
+     * Get the message content definition.
+     */
+    public function content(): Content
+    {
+        $whatsappDigits = $this->enquiry->whatsappDigits();
+        $logoPath = $this->settings?->logo_path;
+
+        return new Content(
+            view: 'emails.new-enquiry',
+            text: 'emails.new-enquiry-text',
+            with: [
+                'siteName' => $this->settings?->site_name ?: config('app.name'),
+                'primaryColor' => $this->settings?->primary_color ?: '#047857',
+                'accentColor' => $this->settings?->secondary_color ?: '#e1c32d',
+                'logoUrl' => $logoPath && Storage::disk('public')->exists($logoPath)
+                    ? asset('storage/'.$logoPath)
+                    : null,
+                'receivedAt' => $this->enquiry->created_at->timezone('Asia/Kolkata')->format('d M Y, h:i A').' IST',
+                'telUrl' => 'tel:'.preg_replace('/[^\d+]/', '', $this->enquiry->phone),
+                'whatsappUrl' => strlen($whatsappDigits) >= 10 ? 'https://wa.me/'.$whatsappDigits : null,
+                'adminUrl' => route('admin.enquiries.index'),
+            ],
+        );
+    }
+}
