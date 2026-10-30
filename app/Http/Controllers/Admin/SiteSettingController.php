@@ -15,7 +15,7 @@ class SiteSettingController extends Controller
      */
     private function getSettings(): SiteSetting
     {
-        return SiteSetting::first() ?? new SiteSetting();
+        return SiteSetting::first() ?? new SiteSetting;
     }
 
     /**
@@ -137,12 +137,13 @@ class SiteSettingController extends Controller
         ];
 
         foreach ($fields as $field) {
-            if (!array_key_exists($field, $validated)) {
+            if (! array_key_exists($field, $validated)) {
                 continue;
             }
 
             if ($field === 'default_meta_robots') {
                 $settings->{$field} = $validated[$field] ?? 'index,follow';
+
                 continue;
             }
 
@@ -262,6 +263,10 @@ class SiteSettingController extends Controller
      */
     public function updateContact(Request $request)
     {
+        // Admins type one address per line or comma-separated; validate them individually.
+        $enquiryEmails = preg_split('/[\s,;]+/', strtolower((string) $request->input('enquiry_emails')), -1, PREG_SPLIT_NO_EMPTY);
+        $request->merge(['enquiry_emails' => array_values(array_unique($enquiryEmails)) ?: null]);
+
         $validated = $request->validate([
             'phone_primary' => ['nullable', 'string', 'max:30'],
             'phone_secondary' => ['nullable', 'string', 'max:30'],
@@ -271,6 +276,11 @@ class SiteSettingController extends Controller
             'gst_number' => ['nullable', 'string', 'max:100'],
             'whatsapp_number' => ['nullable', 'string', 'max:30'],
             'map_embed_url' => ['nullable', 'url', 'max:2000'],
+            'enquiry_emails' => ['nullable', 'array', 'max:5'],
+            'enquiry_emails.*' => ['email', 'max:255'],
+        ], [
+            'enquiry_emails.max' => 'Please enter at most 5 enquiry email addresses.',
+            'enquiry_emails.*.email' => '":input" is not a valid email address.',
         ]);
 
         $settings = $this->getSettings();
@@ -383,13 +393,13 @@ class SiteSettingController extends Controller
         string $inputName,
         string $columnName
     ): void {
-        if (!$request->hasFile($inputName)) {
+        if (! $request->hasFile($inputName)) {
             return;
         }
 
         $newPath = $request->file($inputName)->store('site-settings', 'public');
 
-        if (!$newPath) {
+        if (! $newPath) {
             return;
         }
 

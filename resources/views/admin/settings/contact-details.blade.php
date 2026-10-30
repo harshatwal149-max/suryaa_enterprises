@@ -256,6 +256,19 @@
         </section>
         <section class="settings-card">
             <div class="settings-card-header">
+                <h3>Enquiry Email Notifications</h3>
+                <p>Every new website enquiry is emailed to these addresses.</p>
+            </div>
+            <div class="settings-card-body">
+                <div class="settings-field full">
+                    <label for="enquiry_emails" class="settings-label">Send Enquiries To</label>
+                    <textarea name="enquiry_emails" id="enquiry_emails" class="settings-input" rows="4" placeholder="owner@example.com&#10;sales@example.com">{{ implode("\n", (array) old('enquiry_emails', $settings?->enquiry_emails)) }}</textarea>
+                    <small class="settings-help">One email per line or separated by commas, up to 5. If left empty, enquiries go to the Business Email above.</small>
+                </div>
+            </div>
+        </section>
+        <section class="settings-card">
+            <div class="settings-card-header">
                 <h3>Business Address</h3>
                 <p>Address, tax details and Google Maps embed URL.</p>
             </div>
