@@ -1,5 +1,5 @@
 @php
-$siteSettings = \App\Models\SiteSetting::first();
+$siteSettings = \App\Models\SiteSetting::current();
 $siteName = $siteSettings?->site_name ?: 'Suryaa Enterprises';
 
 $footerPhones = array_filter([

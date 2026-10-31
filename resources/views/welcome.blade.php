@@ -7,6 +7,12 @@
 ) }}
 @endpush
 
+@if ($heroSlides[0]['image'] ?? null)
+@push('styles')
+<link rel="preload" as="image" fetchpriority="high" href="{{ \App\Support\ResizedImage::url($heroSlides[0]['image'], 960) }}" imagesrcset="{{ \App\Support\ResizedImage::srcset($heroSlides[0]['image'], [640, 960, 1600]) }}" imagesizes="100vw">
+@endpush
+@endif
+
 @section('content')
 
 {{-- HERO CAROUSEL + QUICK QUOTE FORM --}}
@@ -15,7 +21,16 @@
         @foreach ($heroSlides as $slide)
         <div class="sh-slide {{ $loop->first ? 'is-active' : '' }}" aria-hidden="{{ $loop->first ? 'false' : 'true' }}">
             @if ($slide['image'])
-            <img class="sh-slide-bg" src="{{ asset('storage/' . ltrim($slide['image'], '/')) }}" alt="" decoding="async" @if ($loop->first) fetchpriority="high" @endif>
+            {{-- Only the first slide loads up front; the script loads the others just before they show. --}}
+            @php
+            $slideUrl = \App\Support\ResizedImage::url($slide['image'], 960);
+            $slideSrcset = \App\Support\ResizedImage::srcset($slide['image'], [640, 960, 1600]);
+            @endphp
+            @if ($loop->first)
+            <img class="sh-slide-bg" src="{{ $slideUrl }}" srcset="{{ $slideSrcset }}" sizes="100vw" alt="" fetchpriority="high">
+            @else
+            <img class="sh-slide-bg" data-src="{{ $slideUrl }}" data-srcset="{{ $slideSrcset }}" sizes="100vw" alt="" decoding="async">
+            @endif
             @endif
         </div>
         @endforeach
@@ -187,7 +202,12 @@
             <a href="{{ route('products.index', ['category' => $category->id]) }}" class="se-category-card">
                 <div class="se-category-image">
                     @if ($category->cover_image)
-                    <img src="{{ asset('storage/' . ltrim($category->cover_image, '/')) }}" alt="{{ $category->name }}" loading="lazy">
+                    <img
+                        src="{{ \App\Support\ResizedImage::url($category->cover_image, 640) }}"
+                        srcset="{{ \App\Support\ResizedImage::srcset($category->cover_image, [320, 640]) }}"
+                        sizes="(max-width: 900px) 50vw, 240px"
+                        alt="{{ $category->name }}"
+                        loading="lazy">
                     @else
                     <i class="fa-solid fa-solar-panel" aria-hidden="true"></i>
                     @endif
@@ -254,7 +274,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
     <div class="se-promo-container">
         @if ($plantsCategory)
         <a href="{{ route('products.index', ['category' => $plantsCategory->id]) }}" class="se-promo-card se-promo-card-dark"
-            @if ($plantsCategory->cover_image) style="--promo-image: url('{{ asset('storage/' . ltrim($plantsCategory->cover_image, '/')) }}')" @endif>
+            @if ($plantsCategory->cover_image) style="--promo-image: url('{{ \App\Support\ResizedImage::url($plantsCategory->cover_image, 640) }}')" @endif>
             <span class="se-promo-tag">PM Surya Ghar Yojana</span>
             <h3>Rooftop Solar with Government Subsidy</h3>
             <p>Cut your electricity bill with an on-grid rooftop system. We help with net metering and subsidy paperwork.</p>
@@ -264,7 +284,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
 
         @if ($heaterCategory)
         <a href="{{ route('products.index', ['category' => $heaterCategory->id]) }}" class="se-promo-card se-promo-card-warm"
-            @if ($heaterCategory->cover_image) style="--promo-image: url('{{ asset('storage/' . ltrim($heaterCategory->cover_image, '/')) }}')" @endif>
+            @if ($heaterCategory->cover_image) style="--promo-image: url('{{ \App\Support\ResizedImage::url($heaterCategory->cover_image, 640) }}')" @endif>
             <span class="se-promo-tag">Built for Hill Winters</span>
             <h3>Glass Line Solar Water Heaters</h3>
             <p>Corrosion-resistant tanks and high-efficiency tubes for reliable hot water all year round.</p>
@@ -2962,8 +2982,19 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
             let current = 0;
 
             hero.style.setProperty('--hero-interval', (parseInt(hero.dataset.interval, 10) || 6500) + 'ms');
+            window.addEventListener('load', function() { loadSlideImage(1); });
 
             if (reduceMotion) hero.classList.add('is-static');
+
+            function loadSlideImage(index) {
+                const image = slides[index % slides.length].querySelector('.sh-slide-bg[data-src]');
+
+                if (!image) return;
+
+                image.srcset = image.dataset.srcset;
+                image.src = image.dataset.src;
+                image.removeAttribute('data-src');
+            }
 
             function restartAnimation(element, className) {
                 element.classList.remove(className);
@@ -2979,6 +3010,9 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
 
                 const previous = current;
                 current = next;
+
+                loadSlideImage(next);
+                loadSlideImage(next + 1);
 
                 slides.forEach(function(slide, i) {
                     slide.classList.remove('is-prev', 'is-entering', 'is-reverse');
@@ -3235,7 +3269,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
 
             dealsTrack.addEventListener('scroll', updateDealButtons, { passive: true });
             window.addEventListener('resize', updateDealButtons);
-            updateDealButtons();
+            requestAnimationFrame(updateDealButtons);
         }
 
         const toast = document.getElementById('enquiryToast');

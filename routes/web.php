@@ -1,29 +1,23 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\Admin\AuthController;
-use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\SubcategoryController;
-use App\Http\Controllers\Admin\SiteSettingController;
-use App\Http\Controllers\Admin\HeroSlideController;
-use App\Http\Controllers\Admin\TestimonialController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EnquiryController as AdminEnquiryController;
+use App\Http\Controllers\Admin\HeroSlideController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
-
+use App\Http\Controllers\Admin\SiteSettingController;
+use App\Http\Controllers\Admin\SubcategoryController;
+use App\Http\Controllers\Admin\TestimonialController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\ProductController as FrontendProductController;
 use App\Http\Controllers\Frontend\SeoController;
 use App\Http\Controllers\Frontend\TestimonialController as FrontendTestimonialController;
-
-use App\Http\Controllers\EnquiryController;
-use App\Http\Controllers\ContactController;
-
-use App\Models\HeroSlide;
-use App\Models\SiteSetting;
 use App\Models\Product;
-
+use App\Models\SiteSetting;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,79 +28,70 @@ use App\Models\Product;
 // Search engines: sitemap and robots rules
 Route::get('/sitemap.xml', [
     SeoController::class,
-    'sitemap'
+    'sitemap',
 ])->name('sitemap');
 
 Route::get('/robots.txt', [
     SeoController::class,
-    'robots'
+    'robots',
 ])->name('robots');
-
 
 // Homepage
 Route::get('/', [
     HomeController::class,
-    'index'
+    'index',
 ])->name('home');
-
 
 // About Us
 Route::view('/about-us', 'about-us')
     ->name('about');
 
-
 // Contact Us
 Route::get('/contact-us', [
     ContactController::class,
-    'show'
+    'show',
 ])->name('contact');
 
 Route::post('/contact-us', [
     ContactController::class,
-    'submit'
+    'submit',
 ])->name('contact.store');
-
 
 // Enquiry Page
 Route::get('/enquiry', function () {
-    $settings = SiteSetting::first();
+    $settings = SiteSetting::current();
 
     return view('enquiry', compact('settings'));
 })->name('enquiry');
 
-
 // Submit Enquiry
 Route::post('/enquiry', [
     EnquiryController::class,
-    'store'
+    'store',
 ])->middleware('throttle:10,1')->name('enquiry.store');
-
 
 // Product Listing
 Route::get('/products', [
     FrontendProductController::class,
-    'index'
+    'index',
 ])->name('products.index');
-
 
 // Product Details
 Route::get('/products/{slug}', [
     FrontendProductController::class,
-    'show'
+    'show',
 ])->name('products.show');
-
 
 // Customer Reviews
 Route::get('/write-review', [
     FrontendTestimonialController::class,
-    'create'
+    'create',
 ])->name('testimonials.create');
 
 Route::post('/write-review', [
     FrontendTestimonialController::class,
-    'store'
+    'store',
 ])->name('testimonials.store');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -119,16 +104,15 @@ Route::prefix('admin')->group(function () {
     // Admin Login Page
     Route::get('/', [
         AuthController::class,
-        'showLogin'
+        'showLogin',
     ])->name('admin.login');
 
     // Process Login
     Route::post('/login', [
         AuthController::class,
-        'login'
+        'login',
     ])->name('admin.login.submit');
 });
-
 
 /*
 |--------------------------------------------------------------------------
@@ -144,9 +128,8 @@ Route::prefix('admin')
         // Dashboard
         Route::get('/dashboard', [
             DashboardController::class,
-            'index'
+            'index',
         ])->name('dashboard');
-
 
         /*
         |--------------------------------------------------------------------------
@@ -156,19 +139,18 @@ Route::prefix('admin')
 
         Route::get('/enquiries', [
             AdminEnquiryController::class,
-            'index'
+            'index',
         ])->name('enquiries.index');
 
         Route::match(['post', 'patch'], '/enquiries/{enquiry}/status', [
             AdminEnquiryController::class,
-            'updateStatus'
+            'updateStatus',
         ])->name('enquiries.update-status');
 
         Route::delete('/enquiries/{enquiry}', [
             AdminEnquiryController::class,
-            'destroy'
+            'destroy',
         ])->name('enquiries.destroy');
-
 
         /*
         |--------------------------------------------------------------------------
@@ -178,14 +160,13 @@ Route::prefix('admin')
 
         Route::get('/settings', [
             SiteSettingController::class,
-            'edit'
+            'edit',
         ])->name('settings.edit');
 
         Route::put('/settings', [
             SiteSettingController::class,
-            'update'
+            'update',
         ])->name('settings.update');
-
 
         /*
         |--------------------------------------------------------------------------
@@ -195,14 +176,13 @@ Route::prefix('admin')
 
         Route::get('/theme-colors', [
             SiteSettingController::class,
-            'editThemeColors'
+            'editThemeColors',
         ])->name('theme-colors.edit');
 
         Route::put('/theme-colors', [
             SiteSettingController::class,
-            'updateThemeColors'
+            'updateThemeColors',
         ])->name('theme-colors.update');
-
 
         /*
         |--------------------------------------------------------------------------
@@ -212,14 +192,13 @@ Route::prefix('admin')
 
         Route::get('/logo-favicon', [
             SiteSettingController::class,
-            'editLogo'
+            'editLogo',
         ])->name('settings.logo');
 
         Route::put('/logo-favicon', [
             SiteSettingController::class,
-            'updateLogo'
+            'updateLogo',
         ])->name('settings.logo.update');
-
 
         /*
         |--------------------------------------------------------------------------
@@ -229,14 +208,13 @@ Route::prefix('admin')
 
         Route::get('/contact-details', [
             SiteSettingController::class,
-            'editContact'
+            'editContact',
         ])->name('settings.contact');
 
         Route::put('/contact-details', [
             SiteSettingController::class,
-            'updateContact'
+            'updateContact',
         ])->name('settings.contact.update');
-
 
         /*
         |--------------------------------------------------------------------------
@@ -246,14 +224,13 @@ Route::prefix('admin')
 
         Route::get('/seo', [
             SiteSettingController::class,
-            'editSeo'
+            'editSeo',
         ])->name('settings.seo');
 
         Route::put('/seo', [
             SiteSettingController::class,
-            'updateSeo'
+            'updateSeo',
         ])->name('settings.seo.update');
-
 
         /*
         |--------------------------------------------------------------------------
@@ -263,14 +240,13 @@ Route::prefix('admin')
 
         Route::get('/social-media', [
             SiteSettingController::class,
-            'editSocial'
+            'editSocial',
         ])->name('settings.social');
 
         Route::put('/social-media', [
             SiteSettingController::class,
-            'updateSocial'
+            'updateSocial',
         ])->name('settings.social.update');
-
 
         /*
         |--------------------------------------------------------------------------
@@ -280,11 +256,10 @@ Route::prefix('admin')
 
         Route::match(['post', 'patch'], '/categories/{category}/toggle-status', [
             CategoryController::class,
-            'toggleStatus'
+            'toggleStatus',
         ])->name('categories.toggle-status');
 
         Route::resource('categories', CategoryController::class);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -294,11 +269,10 @@ Route::prefix('admin')
 
         Route::match(['post', 'patch'], '/subcategories/{subcategory}/toggle-status', [
             SubcategoryController::class,
-            'toggleStatus'
+            'toggleStatus',
         ])->name('subcategories.toggle-status');
 
         Route::resource('subcategories', SubcategoryController::class);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -308,26 +282,25 @@ Route::prefix('admin')
 
         Route::match(['post', 'patch'], '/products/{product}/toggle-status', [
             AdminProductController::class,
-            'toggleStatus'
+            'toggleStatus',
         ])->name('products.toggle-status');
 
         Route::post('/products/price-visibility', [
             AdminProductController::class,
-            'togglePriceVisibility'
+            'togglePriceVisibility',
         ])->name('products.price-visibility');
 
         Route::post('/products/bulk', [
             AdminProductController::class,
-            'bulk'
+            'bulk',
         ])->name('products.bulk');
 
         Route::delete('/products/{product}/images/{image}', [
             AdminProductController::class,
-            'destroyImage'
+            'destroyImage',
         ])->name('products.images.destroy');
 
         Route::resource('products', AdminProductController::class);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -337,12 +310,11 @@ Route::prefix('admin')
 
         Route::match(['post', 'patch'], '/hero-slides/{hero_slide}/toggle-status', [
             HeroSlideController::class,
-            'toggleStatus'
+            'toggleStatus',
         ])->name('hero-slides.toggle-status');
 
         Route::resource('hero-slides', HeroSlideController::class)
             ->except(['show']);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -352,12 +324,11 @@ Route::prefix('admin')
 
         Route::match(['post', 'patch'], '/testimonials/{testimonial}/toggle-status', [
             TestimonialController::class,
-            'toggleStatus'
+            'toggleStatus',
         ])->name('testimonials.toggle-status');
 
         Route::resource('testimonials', TestimonialController::class)
             ->except(['show']);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -367,6 +338,6 @@ Route::prefix('admin')
 
         Route::post('/logout', [
             AuthController::class,
-            'logout'
+            'logout',
         ])->name('logout');
     });

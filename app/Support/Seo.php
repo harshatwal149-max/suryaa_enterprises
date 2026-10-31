@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\SiteSetting;
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 
@@ -17,7 +18,9 @@ class Seo
 
     /** Where the business sells and installs; used in titles, descriptions and schema. */
     public const AREA = 'Kangra, Himachal Pradesh';
+
     public const AREA_SHORT = 'Kangra, HP';
+
     public const REGION = 'Himachal Pradesh';
 
     public const DEFAULT_TITLE = 'Suryaa Enterprises | Solar Dealer in Kangra, Himachal Pradesh';
@@ -25,9 +28,9 @@ class Seo
     public const DEFAULT_DESCRIPTION = 'ISO 9001:2015 certified Super Solar distributor in Kangra, HP. Solar water heaters, rooftop solar plants, street lights & fencing with expert installation.';
 
     public const DEFAULT_KEYWORDS = 'solar dealer in Kangra, solar company in Himachal Pradesh, solar water heater Kangra, '
-        . 'rooftop solar system Himachal Pradesh, on-grid solar plant, PM Surya Ghar subsidy, solar street light, '
-        . 'solar fencing for farms, solar home lighting system, solar inverter, solar panel price, '
-        . 'Super Solar distributor, Suryaa Enterprises, solar installation Dharamshala, solar Palampur';
+        .'rooftop solar system Himachal Pradesh, on-grid solar plant, PM Surya Ghar subsidy, solar street light, '
+        .'solar fencing for farms, solar home lighting system, solar inverter, solar panel price, '
+        .'Super Solar distributor, Suryaa Enterprises, solar installation Dharamshala, solar Palampur';
 
     /** Search copy for each product category, keyed by category slug. */
     public const CATEGORY_COPY = [
@@ -55,7 +58,7 @@ class Seo
 
     public static function settings(): ?SiteSetting
     {
-        return once(fn () => SiteSetting::first());
+        return SiteSetting::current();
     }
 
     public static function siteName(): string
@@ -75,7 +78,7 @@ class Seo
 
     public static function storageUrl(?string $path): ?string
     {
-        return filled($path) ? asset('storage/' . ltrim($path, '/')) : null;
+        return filled($path) ? asset('storage/'.ltrim($path, '/')) : null;
     }
 
     public static function logoUrl(): string
@@ -110,7 +113,7 @@ class Seo
     public static function categoryTitle(Category $category): string
     {
         return self::CATEGORY_COPY[$category->slug]['title']
-            ?? Str::title($category->name) . ' in ' . self::AREA_SHORT;
+            ?? Str::title($category->name).' in '.self::AREA_SHORT;
     }
 
     /**
@@ -123,10 +126,10 @@ class Seo
         }
 
         $intro = filled($category->description)
-            ? rtrim(static::excerpt($category->description, 100), '.') . '.'
-            : 'Quality ' . Str::lower($category->name) . '.';
+            ? rtrim(static::excerpt($category->description, 100), '.').'.'
+            : 'Quality '.Str::lower($category->name).'.';
 
-        return static::excerpt('Buy ' . Str::title($category->name) . ' in ' . self::AREA_SHORT . '. ' . $intro . ' Genuine products with installation & support from ' . static::siteName() . '.');
+        return static::excerpt('Buy '.Str::title($category->name).' in '.self::AREA_SHORT.'. '.$intro.' Genuine products with installation & support from '.static::siteName().'.');
     }
 
     /**
@@ -138,7 +141,7 @@ class Seo
             return $product->meta_title;
         }
 
-        $withArea = $product->name . ' in ' . self::AREA_SHORT;
+        $withArea = $product->name.' in '.self::AREA_SHORT;
 
         return Str::length($withArea) <= 60 ? $withArea : $product->name;
     }
@@ -152,20 +155,20 @@ class Seo
             return static::excerpt($product->meta_description, 320);
         }
 
-        $lead = 'Buy ' . $product->name
-            . (filled($product->size) && ! Str::contains($product->name, $product->size) ? ' (' . $product->size . ')' : '')
-            . (filled($product->brand) && ! Str::contains($product->name, $product->brand) ? ' by ' . $product->brand : '')
-            . ' in ' . self::AREA_SHORT . '.';
+        $lead = 'Buy '.$product->name
+            .(filled($product->size) && ! Str::contains($product->name, $product->size) ? ' ('.$product->size.')' : '')
+            .(filled($product->brand) && ! Str::contains($product->name, $product->brand) ? ' by '.$product->brand : '')
+            .' in '.self::AREA_SHORT.'.';
 
         // First sentence of the product description adds the specific selling point.
         $detail = Str::before(static::excerpt($product->description, 400), '. ');
-        $detail = $detail !== '' ? rtrim($detail, '.…') . '.' : '';
+        $detail = $detail !== '' ? rtrim($detail, '.…').'.' : '';
 
         // Longest closing line that still fits the 160 character snippet.
-        $endings = [' Installation & support by ' . static::siteName() . '.', ' Expert installation & support.', ' Expert installation.', ''];
+        $endings = [' Installation & support by '.static::siteName().'.', ' Expert installation & support.', ' Expert installation.', ''];
 
         foreach ($endings as $ending) {
-            $text = trim($lead . ' ' . $detail . $ending);
+            $text = trim($lead.' '.$detail.$ending);
 
             if (Str::length($text) <= 160) {
                 break;
@@ -190,7 +193,7 @@ class Seo
 
         return array_filter([
             '@type' => 'LocalBusiness',
-            '@id' => url('/') . '#organization',
+            '@id' => url('/').'#organization',
             'name' => static::siteName(),
             'url' => url('/'),
             'logo' => static::logoUrl(),
@@ -238,16 +241,16 @@ class Seo
     {
         return [
             '@type' => 'WebSite',
-            '@id' => url('/') . '#website',
+            '@id' => url('/').'#website',
             'url' => url('/'),
             'name' => static::siteName(),
             'inLanguage' => 'en-IN',
-            'publisher' => ['@id' => url('/') . '#organization'],
+            'publisher' => ['@id' => url('/').'#organization'],
             'potentialAction' => [
                 '@type' => 'SearchAction',
                 'target' => [
                     '@type' => 'EntryPoint',
-                    'urlTemplate' => route('products.index') . '?search={search_term_string}',
+                    'urlTemplate' => route('products.index').'?search={search_term_string}',
                 ],
                 'query-input' => 'required name=search_term_string',
             ],
@@ -261,13 +264,13 @@ class Seo
     {
         return array_filter([
             '@type' => $type,
-            '@id' => url()->current() . '#webpage',
+            '@id' => url()->current().'#webpage',
             'url' => url()->current(),
             'name' => $name,
             'description' => $description,
             'inLanguage' => 'en-IN',
-            'isPartOf' => ['@id' => url('/') . '#website'],
-            'about' => ['@id' => url('/') . '#organization'],
+            'isPartOf' => ['@id' => url('/').'#website'],
+            'about' => ['@id' => url('/').'#organization'],
         ]) + $extra;
     }
 
@@ -303,7 +306,7 @@ class Seo
 
         $schema = array_filter([
             '@type' => 'Product',
-            '@id' => $url . '#product',
+            '@id' => $url.'#product',
             'name' => $product->name,
             'url' => $url,
             'image' => $images ?: [static::defaultImageUrl()],
@@ -334,7 +337,7 @@ class Seo
                     ? 'https://schema.org/InStock'
                     : 'https://schema.org/OutOfStock',
                 'itemCondition' => 'https://schema.org/NewCondition',
-                'seller' => ['@id' => url('/') . '#organization'],
+                'seller' => ['@id' => url('/').'#organization'],
             ];
         }
 
@@ -347,7 +350,7 @@ class Seo
     public static function itemList(iterable $products, int $offset = 0): array
     {
         // collect() on a paginator would give its array form (current_page, data…), not the products.
-        if ($products instanceof \Illuminate\Contracts\Pagination\Paginator) {
+        if ($products instanceof Paginator) {
             $products = $products->items();
         }
 
@@ -374,6 +377,6 @@ class Seo
             JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_PRETTY_PRINT
         );
 
-        return new HtmlString('<script type="application/ld+json">' . $json . '</script>');
+        return new HtmlString('<script type="application/ld+json">'.$json.'</script>');
     }
 }

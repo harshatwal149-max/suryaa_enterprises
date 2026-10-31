@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use App\Models\SiteSetting;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -23,13 +22,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         View::composer('*', function ($view) {
-            static $siteSettings = null;
-
-            if ($siteSettings === null && Schema::hasTable('site_settings')) {
-                $siteSettings = SiteSetting::first();
-            }
-
-            $view->with('siteSettings', $siteSettings);
+            // Stays null before the first migration, when the table does not exist yet.
+            $view->with('siteSettings', rescue(fn () => SiteSetting::current(), null, false));
         });
     }
 }

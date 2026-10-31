@@ -65,11 +65,11 @@ class ProductController extends Controller
 
         // Price range on the price the customer actually pays.
         if ($pricesVisible && is_numeric($request->input('min_price'))) {
-            $query->whereRaw(self::EFFECTIVE_PRICE . ' >= ?', [(float) $request->input('min_price')]);
+            $query->whereRaw(self::EFFECTIVE_PRICE.' >= ?', [(float) $request->input('min_price')]);
         }
 
         if ($pricesVisible && is_numeric($request->input('max_price'))) {
-            $query->whereRaw(self::EFFECTIVE_PRICE . ' <= ?', [(float) $request->input('max_price')]);
+            $query->whereRaw(self::EFFECTIVE_PRICE.' <= ?', [(float) $request->input('max_price')]);
         }
 
         if ($pricesVisible && $request->boolean('on_sale')) {
@@ -91,8 +91,8 @@ class ProductController extends Controller
 
         match ($sort) {
             // Hidden-price products go last so their position doesn't hint at the price.
-            'price_asc' => $query->orderByDesc('show_price')->orderByRaw(self::EFFECTIVE_PRICE . ' ASC'),
-            'price_desc' => $query->orderByDesc('show_price')->orderByRaw(self::EFFECTIVE_PRICE . ' DESC'),
+            'price_asc' => $query->orderByDesc('show_price')->orderByRaw(self::EFFECTIVE_PRICE.' ASC'),
+            'price_desc' => $query->orderByDesc('show_price')->orderByRaw(self::EFFECTIVE_PRICE.' DESC'),
             'discount' => $query->orderByDesc('show_price')->orderByRaw('CASE WHEN discount_price > 0 AND discount_price < price THEN (price - discount_price) / price ELSE 0 END DESC'),
             'name' => $query->orderBy('name'),
             default => $query->latest(),
@@ -104,7 +104,7 @@ class ProductController extends Controller
 
         $totalProducts = Product::where('is_active', true)->count();
 
-        $whatsappNumber = SiteSetting::first()?->whatsappDigits() ?? '';
+        $whatsappNumber = SiteSetting::current()?->whatsappDigits() ?? '';
 
         return view('Products.index', compact(
             'products',
@@ -125,7 +125,7 @@ class ProductController extends Controller
             : Product::where('slug', $slug)->first();
 
         // A real 404 (not a redirect home) so search engines drop removed products.
-        abort_if(!$product || !$product->is_active, 404);
+        abort_if(! $product || ! $product->is_active, 404);
 
         $product->load(['category', 'subcategory', 'images']);
 
@@ -149,7 +149,7 @@ class ProductController extends Controller
             );
         }
 
-        $settings = SiteSetting::first();
+        $settings = SiteSetting::current();
         $whatsappNumber = $settings?->whatsappDigits() ?? '';
         $phoneNumber = (string) ($settings?->phone_primary ?? '');
 

@@ -1,5 +1,5 @@
 @php
-$siteSettings = \App\Models\SiteSetting::first();
+$siteSettings = \App\Models\SiteSetting::current();
 
 $siteName = $siteSettings?->site_name ?: 'Suryaa Enterprises';
 
@@ -17,6 +17,12 @@ $floatingWhatsappNumber = preg_replace(
 );
 
 $hideFloatingButtons = request()->routeIs('testimonials.create');
+
+// jQuery and Toastr only show flash messages and the product enquiry error.
+$needsToastr = session()->has('success')
+    || session()->has('error')
+    || $errors->any()
+    || request()->routeIs('products.show');
 @endphp
 
 <!DOCTYPE html>
@@ -30,7 +36,7 @@ $hideFloatingButtons = request()->routeIs('testimonials.create');
     @include('partials.seo')
 
     @if($siteSettings?->favicon_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($siteSettings->favicon_path))
-    <link rel="icon" href="{{ asset('storage/' . $siteSettings->favicon_path) }}">
+    <link rel="icon" href="{{ \App\Support\ResizedImage::url($siteSettings->favicon_path, 160) }}">
     @else
     <link rel="icon" type="image/svg+xml" href="{{ asset('images/logo-mark.svg') }}">
     @endif
@@ -46,11 +52,14 @@ $hideFloatingButtons = request()->routeIs('testimonials.create');
         'resources/js/app.js'
     ])
 
-    {{-- Font Awesome: header, footer and floating button icons --}}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    {{-- Font Awesome: icons only, so it loads without delaying the first paint --}}
+    <link rel="preload" as="style" crossorigin="anonymous" referrerpolicy="no-referrer" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"></noscript>
 
+    @if ($needsToastr)
     {{-- Toastr CSS --}}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
+    @endif
 
     <style>
         :root {
@@ -354,9 +363,10 @@ $hideFloatingButtons = request()->routeIs('testimonials.create');
         </script>
     @endunless
 
+    @if ($needsToastr)
     {{-- jQuery and Toastr JavaScript --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
 
     {{-- Global AJAX CSRF Setup and Flash Notifications --}}
     <script>
@@ -394,6 +404,7 @@ $hideFloatingButtons = request()->routeIs('testimonials.create');
             @endif
         });
     </script>
+    @endif
 
     @stack('scripts')
 

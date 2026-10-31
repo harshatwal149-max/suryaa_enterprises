@@ -6,9 +6,9 @@
 
 @php
     // Prefer the logo uploaded in Admin → Settings; fall back to the built-in mark + wordmark.
-    $logoSettings = \App\Models\SiteSetting::first();
+    $logoSettings = \App\Models\SiteSetting::current();
     $uploadedLogo = $logoSettings?->logo_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($logoSettings->logo_path)
-        ? asset('storage/' . $logoSettings->logo_path)
+        ? \App\Support\ResizedImage::url($logoSettings->logo_path, 320)
         : null;
     $logoAlt = $logoSettings?->site_name ?: 'Suryaa Enterprises';
 @endphp

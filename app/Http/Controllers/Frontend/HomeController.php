@@ -34,6 +34,7 @@ class HomeController extends Controller
             ->whereHas('products', $activeProducts)
             ->withCount(['products' => $activeProducts])
             ->with(['products' => fn ($query) => $query
+                ->select('id', 'category_id', 'image')
                 ->where('is_active', true)
                 ->whereNotNull('image')
                 ->latest()])
@@ -77,7 +78,7 @@ class HomeController extends Controller
             'reviews' => Testimonial::where('is_active', true)->count(),
         ];
 
-        $settings = SiteSetting::first();
+        $settings = SiteSetting::current();
 
         $whatsappNumber = $settings?->whatsappDigits() ?? '';
 
@@ -156,7 +157,7 @@ class HomeController extends Controller
             ->sortBy(fn (Category $category) => array_search($category->slug, array_keys($copy)))
             ->map(fn (Category $category) => $copy[$category->slug] + [
                 'image' => $category->cover_image,
-                'primary' => ['text' => 'Explore ' . $copy[$category->slug]['label'], 'url' => route('products.index', ['category' => $category->id])],
+                'primary' => ['text' => 'Explore '.$copy[$category->slug]['label'], 'url' => route('products.index', ['category' => $category->id])],
                 'secondary' => ['text' => 'Get a Free Quote', 'url' => '#hero-quote'],
             ])
             ->values()

@@ -2,7 +2,7 @@
 
 @section('content')
 @php
-$settings = \App\Models\SiteSetting::first();
+$settings = \App\Models\SiteSetting::current();
 
 $heading = $settings?->about_heading ?: 'Reliable Solar Solutions. Built Around Your Needs.';
 $description = $settings?->about_description
@@ -16,7 +16,7 @@ $settings?->about_highlight_four ?: 'Solar Fencing Solutions',
 ])->filter(fn ($item) => filled($item))->values();
 
 $aboutImage = $settings?->about_image
-? asset('storage/' . $settings->about_image)
+? \App\Support\ResizedImage::url($settings->about_image, 1600)
 : asset('images/about-bg.jpg');
 @endphp
 

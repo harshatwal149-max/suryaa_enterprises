@@ -71,12 +71,21 @@ class SiteSetting extends Model
     }
 
     /**
+     * The settings row, memoised per request because the layout, header, footer
+     * and logo each need it. Admin screens that change settings query directly.
+     */
+    public static function current(): ?self
+    {
+        return once(fn () => static::first());
+    }
+
+    /**
      * Whether product prices are shown on the website (site-wide switch).
      * Memoised per request because every product card asks.
      */
     public static function pricesVisible(): bool
     {
-        return once(fn () => (bool) (static::first()?->show_product_prices ?? true));
+        return (bool) (static::current()?->show_product_prices ?? true);
     }
 
     /**
