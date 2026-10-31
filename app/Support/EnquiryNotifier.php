@@ -20,9 +20,14 @@ class EnquiryNotifier
     /**
      * Queues one email per recipient; the queue worker delivers and retries them.
      * Best-effort: the enquiry is already saved, so a mail failure must not fail the form.
+     * Spam stays in Admin → Enquiries without emailing anyone.
      */
     public static function send(Enquiry $enquiry, string $source): void
     {
+        if ($enquiry->status === Enquiry::STATUS_SPAM) {
+            return;
+        }
+
         $settings = SiteSetting::first();
         $recipients = $settings?->enquiryRecipients() ?: array_filter([config('mail.from.address')]);
 

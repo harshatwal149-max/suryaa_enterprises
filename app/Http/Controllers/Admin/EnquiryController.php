@@ -12,15 +12,23 @@ use Symfony\Component\HttpFoundation\Response;
 class EnquiryController extends Controller
 {
     /**
-     * Display all customer enquiries.
+     * Display customer enquiries, or the ones caught as spam.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $enquiries = Enquiry::latest()->paginate(15);
+        $showingSpam = $request->query('view') === 'spam';
+
+        $enquiries = Enquiry::query()
+            ->when($showingSpam, fn ($query) => $query->spam(), fn ($query) => $query->notSpam())
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+
+        $spamCount = Enquiry::spam()->count();
 
         $undeliveredEmails = EnquiryNotifier::undeliveredCount();
 
-        return view('admin.enquiries.index', compact('enquiries', 'undeliveredEmails'));
+        return view('admin.enquiries.index', compact('enquiries', 'undeliveredEmails', 'showingSpam', 'spamCount'));
     }
 
     /**
@@ -33,7 +41,7 @@ class EnquiryController extends Controller
         $validated = $request->validate([
             'status' => [
                 'required',
-                'in:pending,contacted,completed',
+                'in:pending,contacted,completed,spam',
             ],
         ]);
 

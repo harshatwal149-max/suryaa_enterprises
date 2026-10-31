@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Enquiry;
 use App\Models\Product;
 use App\Support\EnquiryNotifier;
+use App\Support\EnquirySpamFilter;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -30,6 +31,10 @@ class EnquiryController extends Controller
         ], [
             'phone.regex' => 'Please enter a valid phone number.',
         ]);
+
+        $validated['status'] = EnquirySpamFilter::isSpam($validated['phone'], $validated['message'])
+            ? Enquiry::STATUS_SPAM
+            : Enquiry::STATUS_PENDING;
 
         // Enquiries sent from a product page say which product they are about.
         $product = filled($validated['product_id'] ?? null)

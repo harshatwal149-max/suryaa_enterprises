@@ -55,7 +55,7 @@ Route::get('/contact-us', [
 Route::post('/contact-us', [
     ContactController::class,
     'submit',
-])->name('contact.store');
+])->middleware('throttle:10,1')->name('contact.store');
 
 // Enquiry Page
 Route::get('/enquiry', function () {

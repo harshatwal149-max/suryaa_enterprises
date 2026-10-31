@@ -20,7 +20,7 @@ $totalSubcategories = $subcategoryTable ? $db::table($subcategoryTable)->count()
 
 $enquiryTable = collect(['enquiries', 'customer_enquiries', 'contact_enquiries', 'inquiries', 'contacts'])
 ->first(fn ($table) => $schema::hasTable($table));
-$totalEnquiries = $enquiryTable ? $db::table($enquiryTable)->count() : 0;
+$totalEnquiries = $enquiryTable ? \App\Models\Enquiry::notSpam()->count() : 0;
 $pendingEnquiries = 0;
 if ($enquiryTable && $schema::hasColumn($enquiryTable, 'status')) {
 $pendingEnquiries = $db::table($enquiryTable)

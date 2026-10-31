@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Enquiry;
 use App\Models\SiteSetting;
 use App\Support\EnquiryNotifier;
+use App\Support\EnquirySpamFilter;
 use Illuminate\Http\Request;
 
 class ContactController extends Controller
@@ -38,9 +39,11 @@ class ContactController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'email' => ['nullable', 'email', 'max:150'],
-            'phone' => ['required', 'string', 'max:30'],
+            'phone' => ['required', 'string', 'max:30', 'regex:/^[0-9+\-\s()]{7,30}$/'],
             'interest' => ['nullable', 'string', 'max:100'],
             'message' => ['required', 'string', 'max:5000'],
+        ], [
+            'phone.regex' => 'Please enter a valid phone number.',
         ]);
 
         $message = filled($validated['interest'] ?? null)
@@ -53,6 +56,9 @@ class ContactController extends Controller
             'phone' => $validated['phone'],
             'email' => $validated['email'] ?? null,
             'message' => $message,
+            'status' => EnquirySpamFilter::isSpam($validated['phone'], $validated['message'])
+                ? Enquiry::STATUS_SPAM
+                : Enquiry::STATUS_PENDING,
         ]);
 
         EnquiryNotifier::send($enquiry, 'Contact Us page');
