@@ -1,5 +1,5 @@
 @php
-    $siteSettings = \App\Models\SiteSetting::first();
+    $siteSettings = \App\Models\SiteSetting::current();
     $siteName = $siteSettings?->site_name ?: 'Suryaa Enterprises';
 
     $headerLinks = collect($siteSettings?->header_links ?: [
@@ -53,8 +53,6 @@
     $quoteUrl = request()->routeIs('home') ? '#hero-quote' : route('enquiry');
     $telHref = fn ($phone) => 'tel:+91' . substr(preg_replace('/\D+/', '', $phone), -10);
 @endphp
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" referrerpolicy="no-referrer">
 
 <style>
     /* Suryaa Enterprises sticky header: top bar + main bar + mobile drawer */

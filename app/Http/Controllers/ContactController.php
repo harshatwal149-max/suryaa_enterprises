@@ -12,7 +12,7 @@ class ContactController extends Controller
 {
     public function show()
     {
-        $settings = SiteSetting::first();
+        $settings = SiteSetting::current();
 
         $categories = Category::query()
             ->whereHas('products', fn ($query) => $query->where('is_active', true))

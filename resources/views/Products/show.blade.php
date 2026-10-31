@@ -29,12 +29,13 @@ $seoDescription = \App\Support\Seo::productDescription($product);
 
 @section('content')
 @php
-$galleryImages = collect([$product->image])
+$galleryPaths = collect([$product->image])
     ->merge($product->images->pluck('image_path'))
     ->filter()
     ->unique()
-    ->values()
-    ->map(fn ($path) => asset('storage/' . ltrim($path, '/')));
+    ->values();
+
+$galleryImages = $galleryPaths->map(fn ($path) => \App\Support\ResizedImage::url($path, 960));
 
 $showPrice = $product->priceVisible();
 $hasDiscount = $product->hasVisibleDiscount();
@@ -121,7 +122,7 @@ $specs = array_filter([
                     data-src="{{ $imageUrl }}"
                     aria-label="Show image {{ $loop->iteration }}"
                     aria-pressed="{{ $loop->first ? 'true' : 'false' }}">
-                    <img src="{{ $imageUrl }}" alt="" loading="lazy">
+                    <img src="{{ \App\Support\ResizedImage::url($galleryPaths[$loop->index], 160) }}" alt="" loading="lazy">
                 </button>
                 @endforeach
             </div>
@@ -249,7 +250,7 @@ $specs = array_filter([
 
                 <div class="pd-enquiry-product">
                     @if ($galleryImages->isNotEmpty())
-                    <img src="{{ $galleryImages->first() }}" alt="" loading="lazy">
+                    <img src="{{ \App\Support\ResizedImage::url($galleryPaths->first(), 160) }}" alt="" loading="lazy">
                     @endif
                     <div>
                         <strong>{{ $product->name }}</strong>

@@ -13,7 +13,9 @@ $inStock = (int) $product->quantity > 0;
         @if (!empty($product->image))
         <img
             class="se-product-image"
-            src="{{ asset('storage/' . ltrim($product->image, '/')) }}"
+            src="{{ \App\Support\ResizedImage::url($product->image, 640) }}"
+            srcset="{{ \App\Support\ResizedImage::srcset($product->image, [320, 640]) }}"
+            sizes="(max-width: 700px) 50vw, 320px"
             alt="{{ $product->name }}"
             loading="lazy">
         @else
