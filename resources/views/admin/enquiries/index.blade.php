@@ -42,11 +42,16 @@
     </div>
     @endif
 
+    <nav class="enquiry-tabs" aria-label="Enquiry folders">
+        <a href="{{ route('admin.enquiries.index') }}" @class(['enquiry-tab', 'is-active' => ! $showingSpam])>Enquiries</a>
+        <a href="{{ route('admin.enquiries.index', ['view' => 'spam']) }}" @class(['enquiry-tab', 'is-active' => $showingSpam])>Spam ({{ $spamCount }})</a>
+    </nav>
+
     <div class="enquiries-card">
         <div class="enquiries-card-heading">
             <div>
-                <h2>All Enquiries</h2>
-                <p>Customer contact details and enquiry status</p>
+                <h2>{{ $showingSpam ? 'Spam' : 'All Enquiries' }}</h2>
+                <p>{{ $showingSpam ? 'Caught automatically and not emailed. Set a real customer back to Pending to move them to Enquiries.' : 'Customer contact details and enquiry status' }}</p>
             </div>
             <span class="record-count" id="enquiry-record-badge">{{ $enquiries->total() }} records</span>
         </div>
@@ -140,6 +145,11 @@
                                         @selected($enquiry->status === 'completed')>
                                         Completed
                                     </option>
+
+                                    <option value="spam"
+                                        @selected($enquiry->status === 'spam')>
+                                        Spam
+                                    </option>
                                 </select>
 
                                 <button type="submit" class="status-button">
@@ -178,8 +188,8 @@
         @else
         <div class="enquiries-empty">
             <div class="empty-icon">✉</div>
-            <h3>No enquiries yet</h3>
-            <p>Customer enquiries will appear here after someone submits your website form.</p>
+            <h3>{{ $showingSpam ? 'No spam' : 'No enquiries yet' }}</h3>
+            <p>{{ $showingSpam ? 'Messages caught by the spam filter will appear here.' : 'Customer enquiries will appear here after someone submits your website form.' }}</p>
         </div>
         @endif
     </div>
@@ -264,6 +274,29 @@
     .enquiry-alert ul {
         margin: 8px 0 0;
         padding-left: 20px;
+    }
+
+    .enquiry-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+
+    .enquiry-tab {
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: 1px solid #dce7de;
+        background: #fff;
+        color: #547260;
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .enquiry-tab.is-active {
+        background: #176b4d;
+        border-color: #176b4d;
+        color: #fff;
     }
 
     .enquiries-card {
@@ -479,6 +512,12 @@
         color: #176b4d;
     }
 
+    .status-select.status-spam {
+        background-color: #fff0f0;
+        border-color: #f3d0d0;
+        color: #a52d2d;
+    }
+
     .status-button {
         width: 100%;
         padding: 8px 10px;
@@ -592,7 +631,7 @@
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {
-                            select.classList.remove('status-pending', 'status-contacted', 'status-completed');
+                            select.classList.remove('status-pending', 'status-contacted', 'status-completed', 'status-spam');
                             select.classList.add('status-' + selectedStatus);
 
                             if (window.Swal) {
