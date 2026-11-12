@@ -34,6 +34,7 @@ $needsToastr = session()->has('success')
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     @include('partials.seo')
+    <meta name="google-site-verification" content="LCwLtzsV7o2GJm7k5d3uoQcryyUidWhggsxs1esAWjc" />
 
     @if($siteSettings?->favicon_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($siteSettings->favicon_path))
     <link rel="icon" href="{{ \App\Support\ResizedImage::url($siteSettings->favicon_path, 160) }}">
