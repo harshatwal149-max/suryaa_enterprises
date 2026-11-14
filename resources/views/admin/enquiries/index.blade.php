@@ -151,10 +151,6 @@
                                         Spam
                                     </option>
                                 </select>
-
-                                <button type="submit" class="status-button">
-                                    Update Status
-                                </button>
                             </form>
                         </td>
 
@@ -518,23 +514,6 @@
         color: #a52d2d;
     }
 
-    .status-button {
-        width: 100%;
-        padding: 8px 10px;
-        border: 0;
-        border-radius: 8px;
-        background: #176b4d;
-        color: #fff;
-        font-size: 11px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: background .2s ease;
-    }
-
-    .status-button:hover {
-        background: #10543c;
-    }
-
     .btn-delete {
         border: 0;
         background: #fff0ef;
@@ -612,21 +591,29 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // 1. AJAX Auto Status Update on Select Change
-        document.querySelectorAll('.status-form').forEach(function(form) {
-            const select = form.querySelector('.status-select');
+        // 1. AJAX Auto Status Update
+        document.querySelectorAll('.status-select').forEach(function(select) {
+            select.addEventListener('change', function() {
+                const form = this.closest('form');
+                const selectedStatus = this.value;
+                const actionUrl = form.action;
+                
+                this.disabled = true;
 
-            function updateStatusAjax(selectedStatus) {
-                select.disabled = true;
+                const payload = {
+                    status: selectedStatus,
+                    _method: 'PATCH'
+                };
 
-                fetch(form.action, {
+                fetch(actionUrl, {
                         method: 'POST',
                         headers: {
+                            'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                             'X-Requested-With': 'XMLHttpRequest',
                             'Accept': 'application/json'
                         },
-                        body: new URLSearchParams(new FormData(form))
+                        body: JSON.stringify(payload)
                     })
                     .then(res => res.json())
                     .then(data => {
@@ -644,6 +631,8 @@
                                     timer: 1800
                                 });
                             }
+                        } else {
+                            throw new Error(data.message || 'Failed to update');
                         }
                     })
                     .catch(() => {
@@ -661,25 +650,22 @@
                     .finally(() => {
                         select.disabled = false;
                     });
-            }
-
-            select.addEventListener('change', function() {
-                updateStatusAjax(this.value);
-            });
-
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                updateStatusAjax(select.value);
             });
         });
 
-        // 2. AJAX Delete Enquiry with SweetAlert2
+        // Form ki default submit rokein
+        document.querySelectorAll('.status-form').forEach(function(form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+            });
+        });
+
+        // 2. AJAX Delete Enquiry
         document.querySelectorAll('.delete-enquiry-form').forEach(function(form) {
             form.addEventListener('submit', function(event) {
                 event.preventDefault();
 
                 const customer = form.dataset.customer || 'this enquiry';
-                const enquiryId = form.dataset.id;
                 const actionUrl = form.action;
 
                 if (typeof Swal === 'undefined') {
@@ -696,21 +682,20 @@
                     showCancelButton: true,
                     confirmButtonColor: '#dc2626',
                     cancelButtonColor: '#6b7280',
-                    confirmButtonText: 'Yes, delete it!',
-                    cancelButtonText: 'Cancel',
-                    reverseButtons: true
+                    confirmButtonText: 'Yes, delete it!'
                 }).then(function(result) {
                     if (result.isConfirmed) {
-                        const row = document.getElementById('enquiry-row-' + enquiryId);
-
+                        const row = form.closest('tr');
+                        
                         fetch(actionUrl, {
                                 method: 'POST',
                                 headers: {
+                                    'Content-Type': 'application/json',
                                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                                     'X-Requested-With': 'XMLHttpRequest',
                                     'Accept': 'application/json'
                                 },
-                                body: new URLSearchParams(new FormData(form))
+                                body: JSON.stringify({ _method: 'DELETE' })
                             })
                             .then(res => res.json())
                             .then(data => {

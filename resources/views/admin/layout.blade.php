@@ -763,7 +763,6 @@ $siteName = $siteSettings?->site_name ?: 'Suryaa Enterprises';
                     class="nav-child {{ request()->routeIs('admin.enquiries.*') ? 'active' : '' }}">
                     Enquiries
                 </a>
-                <a href="{{ route('admin.enquiries.index') }}" class="nav-child">Offers</a>
             </div>
         </nav>
 

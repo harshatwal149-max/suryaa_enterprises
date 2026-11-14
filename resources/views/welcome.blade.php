@@ -270,7 +270,7 @@ $plantsCategory = $categories->firstWhere('slug', 'solar-power-plants');
 $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
 @endphp
 @if ($plantsCategory || $heaterCategory)
-<section class="se-promo-section" aria-label="Offers">
+<section class="se-promo-section" aria-label="Offerssss">
     <div class="se-promo-container">
         @if ($plantsCategory)
         <a href="{{ route('products.index', ['category' => $plantsCategory->id]) }}" class="se-promo-card se-promo-card-dark"

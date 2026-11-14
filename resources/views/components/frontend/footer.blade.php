@@ -3,35 +3,35 @@ $siteSettings = \App\Models\SiteSetting::current();
 $siteName = $siteSettings?->site_name ?: 'Suryaa Enterprises';
 
 $footerPhones = array_filter([
-$siteSettings?->phone_primary,
-$siteSettings?->phone_secondary,
-$siteSettings?->phone_tertiary,
+    $siteSettings?->phone_primary,
+    $siteSettings?->phone_secondary,
+    $siteSettings?->phone_tertiary,
 ], fn ($phone) => filled($phone));
 
 $footerSocials = [
-'facebook_url' => 'Facebook',
-'instagram_url' => 'Instagram',
-'youtube_url' => 'YouTube',
-'linkedin_url' => 'LinkedIn',
+    'facebook_url' => 'Facebook',
+    'instagram_url' => 'Instagram',
+    'youtube_url' => 'YouTube',
+    'linkedin_url' => 'LinkedIn',
 ];
 
 $exploreLinks = collect($siteSettings?->header_links ?: [
-['label' => 'Home', 'url' => '/', 'active' => true],
-['label' => 'About Us', 'url' => '/about-us', 'active' => true],
-['label' => 'Products', 'url' => '/products', 'active' => true],
-['label' => 'Contact Us', 'url' => '/contact-us', 'active' => true],
+    ['label' => 'Home', 'url' => '/', 'active' => true],
+    ['label' => 'About Us', 'url' => '/about-us', 'active' => true],
+    ['label' => 'Products', 'url' => '/products', 'active' => true],
+    ['label' => 'Contact Us', 'url' => '/contact-us', 'active' => true],
 ])->filter(fn ($link) =>
-is_array($link) &&
-!empty($link['active']) &&
-!empty($link['label']) &&
-!empty($link['url'])
+    is_array($link) &&
+    !empty($link['active']) &&
+    !empty($link['label']) &&
+    !empty($link['url'])
 );
 
 $normalizeUrl = fn ($url) =>
-\Illuminate\Support\Str::startsWith(
-$url,
-['http://', 'https://', '/', '#', 'mailto:', 'tel:']
-) ? $url : '/' . $url;
+    \Illuminate\Support\Str::startsWith(
+        $url,
+        ['http://', 'https://', '/', '#', 'mailto:', 'tel:']
+    ) ? $url : '/' . $url;
 
 $mapUrl = trim((string) ($siteSettings?->map_embed_url ?? ''));
 @endphp
@@ -204,7 +204,9 @@ $mapUrl = trim((string) ($siteSettings?->map_embed_url ?? ''));
                 ?: ('© ' . date('Y') . ' ' . $siteName . '. All rights reserved.') }}
         </p>
 
-        <span class="footer-credit">Brute Corp</span>   
+        <span class="footer-credit">
+            Crafted by <a href="https://brutecorp.com" target="_blank" rel="noopener noreferrer">brutecorp.com</a>
+        </span>   
     </div>
 </footer>
 
@@ -367,6 +369,38 @@ $mapUrl = trim((string) ($siteSettings?->map_embed_url ?? ''));
         outline-offset: 3px;
     }
 
+    .site-footer .footer-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 40px;
+        padding-top: 24px;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .site-footer .footer-bottom p {
+        margin: 0;
+        color: #78877e;
+        font-size: 14px;
+    }
+
+    .site-footer .footer-credit {
+        color: #78877e;
+        font-size: 14px;
+    }
+
+    .site-footer .footer-credit a {
+        color: #176b4d;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .site-footer .footer-credit a:hover {
+        text-decoration: underline;
+    }
+
     @media (max-width: 1100px) {
         .site-footer .footer-container {
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -414,10 +448,11 @@ $mapUrl = trim((string) ($siteSettings?->map_embed_url ?? ''));
         }
 
         .site-footer .footer-bottom {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px 16px;
+            flex-direction: column;
             align-items: flex-start;
+            gap: 12px;
+            padding-top: 20px;
+            margin-top: 30px;
         }
     }
 
