@@ -85,8 +85,8 @@ $ogImage = $sectionText('og_image') ?: Seo::defaultImageUrl();
 {{-- Local Business Schema (CRITICAL FOR LOCAL SEO) --}}
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
-  "@type": "HomeAndConstructionBusiness",
+  "@@context": "https://schema.org",
+  "@@type": "HomeAndConstructionBusiness",
   "name": "Suryaa Enterprises",
   "url": "{{ url('/') }}",
   "logo": "{{ \App\Support\Seo::logoUrl() }}",
@@ -95,7 +95,7 @@ $ogImage = $sectionText('og_image') ?: Seo::defaultImageUrl();
   "telephone": "+91-92186-16000",
   "email": "suryaaent.kangra@gmail.com",
   "address": {
-    "@type": "PostalAddress",
+    "@@type": "PostalAddress",
     "streetAddress": "Vidhan Sabha Road, Mandal (Masrer)",
     "addressLocality": "Dharamshala, Kangra",
     "addressRegion": "Himachal Pradesh",

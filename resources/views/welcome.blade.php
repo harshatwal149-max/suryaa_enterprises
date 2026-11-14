@@ -6,16 +6,16 @@
 @push('schema')
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
-  "@type": "LocalBusiness",
+  "@@context": "https://schema.org",
+  "@@type": "LocalBusiness",
   "name": "Suryaa Enterprises",
   "image": "https://suryaasolarsolution.com/images/logo.png",
-  "@id": "https://suryaasolarsolution.com/#localbusiness",
+  "@@id": "https://suryaasolarsolution.com/#localbusiness",
   "url": "https://suryaasolarsolution.com",
   "telephone": "+91-9218616000",
   "priceRange": "₹₹",
   "address": {
-    "@type": "PostalAddress",
+    "@@type": "PostalAddress",
     "streetAddress": "Vidhan Sabha Road, Mandal (Masrer)",
     "addressLocality": "Dharamshala",
     "addressRegion": "Himachal Pradesh",
@@ -23,12 +23,12 @@
     "addressCountry": "IN"
   },
   "geo": {
-    "@type": "GeoCoordinates",
+    "@@type": "GeoCoordinates",
     "latitude": 32.2190,
     "longitude": 76.3234
   },
   "openingHoursSpecification": {
-    "@type": "OpeningHoursSpecification",
+    "@@type": "OpeningHoursSpecification",
     "dayOfWeek": [
       "Monday",
       "Tuesday",
@@ -41,16 +41,16 @@
     "closes": "19:00"
   },
   "areaServed": [
-    { "@type": "AdministrativeArea", "name": "Himachal Pradesh" },
-    { "@type": "AdministrativeArea", "name": "Kangra" },
-    { "@type": "AdministrativeArea", "name": "Dharamshala" },
-    { "@type": "AdministrativeArea", "name": "Mandi" },
-    { "@type": "AdministrativeArea", "name": "Shimla" },
-    { "@type": "AdministrativeArea", "name": "Hamirpur" },
-    { "@type": "AdministrativeArea", "name": "Una" },
-    { "@type": "AdministrativeArea", "name": "Kullu" },
-    { "@type": "AdministrativeArea", "name": "Bilaspur" },
-    { "@type": "AdministrativeArea", "name": "Chamba" }
+    { "@@type": "AdministrativeArea", "name": "Himachal Pradesh" },
+    { "@@type": "AdministrativeArea", "name": "Kangra" },
+    { "@@type": "AdministrativeArea", "name": "Dharamshala" },
+    { "@@type": "AdministrativeArea", "name": "Mandi" },
+    { "@@type": "AdministrativeArea", "name": "Shimla" },
+    { "@@type": "AdministrativeArea", "name": "Hamirpur" },
+    { "@@type": "AdministrativeArea", "name": "Una" },
+    { "@@type": "AdministrativeArea", "name": "Kullu" },
+    { "@@type": "AdministrativeArea", "name": "Bilaspur" },
+    { "@@type": "AdministrativeArea", "name": "Chamba" }
   ],
   "sameAs": [
     "https://suryaasolarsolution.com"
@@ -65,11 +65,11 @@
 </script>
 @endpush
 
-@if (($heroSlides[0]['image'] ?? null))
 @push('styles')
+@if (!empty($heroSlides[0]['image'] ?? null))
 <link rel="preload" as="image" fetchpriority="high" href="{{ \App\Support\ResizedImage::url($heroSlides[0]['image'], 960) }}" imagesrcset="{{ \App\Support\ResizedImage::srcset($heroSlides[0]['image'], [640, 960, 1600]) }}" imagesizes="100vw">
-@endpush
 @endif
+@endpush
 
 @section('content')
 
@@ -78,7 +78,7 @@
     <div class="sh-slides">
         @foreach ($heroSlides as $slide)
         <div class="sh-slide {{ $loop->first ? 'is-active' : '' }}" aria-hidden="{{ $loop->first ? 'false' : 'true' }}">
-            @if ($slide['image'])
+            @if (!empty($slide['image']))
             @php
             $slideUrl = \App\Support\ResizedImage::url($slide['image'], 960);
             $slideSrcset = \App\Support\ResizedImage::srcset($slide['image'], [640, 960, 1600]);
@@ -103,29 +103,29 @@
                 aria-roledescription="slide"
                 aria-label="{{ $loop->iteration }} of {{ count($heroSlides) }}"
                 aria-hidden="{{ $loop->first ? 'false' : 'true' }}">
-                @if ($slide['kicker'])
+                @if (!empty($slide['kicker']))
                 <span class="sh-kicker"><i class="fa-solid fa-sun" aria-hidden="true"></i> {{ $slide['kicker'] }}</span>
                 @endif
 
                 @if ($loop->first)
-                <h1 class="sh-heading">{{ $slide['heading'] }}</h1>
+                <h1 class="sh-heading">{{ $slide['heading'] ?? '' }}</h1>
                 @else
-                <h2 class="sh-heading">{{ $slide['heading'] }}</h2>
+                <h2 class="sh-heading">{{ $slide['heading'] ?? '' }}</h2>
                 @endif
 
-                @if ($slide['description'])
+                @if (!empty($slide['description']))
                 <p class="sh-description">{{ $slide['description'] }}</p>
                 @endif
 
                 <div class="sh-actions">
-                    @if ($slide['primary'])
-                    <a href="{{ $slide['primary']['url'] }}" class="sh-btn sh-btn-primary" @unless ($loop->first) tabindex="-1" @endunless>
-                        {{ $slide['primary']['text'] }} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    @if (!empty($slide['primary']))
+                    <a href="{{ $slide['primary']['url'] ?? '#' }}" class="sh-btn sh-btn-primary" @unless ($loop->first) tabindex="-1" @endunless>
+                        {{ $slide['primary']['text'] ?? 'Learn More' }} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
                     </a>
                     @endif
-                    @if ($slide['secondary'])
-                    <a href="{{ $slide['secondary']['url'] }}" class="sh-btn sh-btn-ghost" @unless ($loop->first) tabindex="-1" @endunless>
-                        {{ $slide['secondary']['text'] }}
+                    @if (!empty($slide['secondary']))
+                    <a href="{{ $slide['secondary']['url'] ?? '#' }}" class="sh-btn sh-btn-ghost" @unless ($loop->first) tabindex="-1" @endunless>
+                        {{ $slide['secondary']['text'] ?? 'Contact' }}
                     </a>
                     @endif
                 </div>
@@ -139,7 +139,7 @@
             </ul>
         </div>
 
-        {{-- Quick quote form (posts to the same enquiry endpoint as the main form) --}}
+        {{-- Quick quote form --}}
         <div class="sh-form-card" id="hero-quote">
             <div class="sh-form-glow" aria-hidden="true"></div>
 
@@ -179,9 +179,11 @@
                     <div class="sh-field sh-field-select">
                         <select id="sh-interest" name="message" required>
                             <option value="" disabled selected hidden></option>
-                            @foreach ($categories as $category)
-                            <option value="Quote request: {{ \Illuminate\Support\Str::title($category->name) }}">{{ \Illuminate\Support\Str::title($category->name) }}</option>
-                            @endforeach
+                            @if(isset($categories))
+                                @foreach ($categories as $category)
+                                <option value="Quote request: {{ \Illuminate\Support\Str::title($category->name) }}">{{ \Illuminate\Support\Str::title($category->name) }}</option>
+                                @endforeach
+                            @endif
                             <option value="Quote request: Not sure, need advice">Not sure, need advice</option>
                         </select>
                         <label for="sh-interest"><i class="fa-solid fa-solar-panel" aria-hidden="true"></i> I’m interested in</label>
@@ -201,13 +203,13 @@
         </div>
     </div>
 
-    @if (count($heroSlides) > 1)
+    @if (isset($heroSlides) && count($heroSlides) > 1)
     <div class="sh-nav">
         <div class="sh-tabs" role="tablist" aria-label="Choose slide">
             @foreach ($heroSlides as $slide)
-            <button type="button" class="sh-tab {{ $loop->first ? 'is-active' : '' }}" role="tab" aria-selected="{{ $loop->first ? 'true' : 'false' }}" aria-label="Show slide {{ $loop->iteration }}: {{ $slide['label'] }}">
+            <button type="button" class="sh-tab {{ $loop->first ? 'is-active' : '' }}" role="tab" aria-selected="{{ $loop->first ? 'true' : 'false' }}" aria-label="Show slide {{ $loop->iteration }}: {{ $slide['label'] ?? '' }}">
                 <span class="sh-tab-num">{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
-                <span class="sh-tab-label">{{ $slide['label'] }}</span>
+                <span class="sh-tab-label">{{ $slide['label'] ?? '' }}</span>
                 <span class="sh-tab-progress" aria-hidden="true"><span></span></span>
             </button>
             @endforeach
@@ -244,7 +246,7 @@
 </section>
 
 {{-- SHOP BY CATEGORY --}}
-@if ($categories->isNotEmpty())
+@if (isset($categories) && $categories->isNotEmpty())
 <section class="se-categories-section" id="categories" aria-labelledby="se-categories-title">
     <div class="se-products-container">
         <div class="se-section-heading se-section-heading-center">
@@ -257,7 +259,7 @@
             @foreach ($categories as $category)
             <a href="{{ route('products.index', ['category' => $category->id]) }}" class="se-category-card">
                 <div class="se-category-image">
-                    @if ($category->cover_image)
+                    @if (!empty($category->cover_image))
                     <img
                         src="{{ \App\Support\ResizedImage::url($category->cover_image, 640) }}"
                         srcset="{{ \App\Support\ResizedImage::srcset($category->cover_image, [320, 640]) }}"
@@ -270,7 +272,7 @@
                 </div>
                 <div class="se-category-body">
                     <h3>{{ \Illuminate\Support\Str::title($category->name) }}</h3>
-                    <span>{{ $category->products_count }} {{ \Illuminate\Support\Str::plural('Product', $category->products_count) }} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+                    <span>{{ $category->products_count ?? 0 }} {{ \Illuminate\Support\Str::plural('Product', $category->products_count ?? 0) }} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
                 </div>
             </a>
             @endforeach
@@ -294,7 +296,7 @@
             </a>
         </div>
 
-        @if (($products ?? collect())->isNotEmpty() && $categories->count() > 1)
+        @if (($products ?? collect())->isNotEmpty() && isset($categories) && $categories->count() > 1)
         <div class="se-product-tabs" role="tablist" aria-label="Filter products by category">
             <button type="button" class="se-product-tab is-active" role="tab" aria-selected="true" data-filter="all">All</button>
             @foreach ($categories as $category)
@@ -322,15 +324,15 @@
 
 {{-- PROMO BANNERS --}}
 @php
-$plantsCategory = $categories->firstWhere('slug', 'solar-power-plants');
-$heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
+$plantsCategory = isset($categories) ? $categories->firstWhere('slug', 'solar-power-plants') : null;
+$heaterCategory = isset($categories) ? $categories->firstWhere('slug', 'solar-water-heater') : null;
 @endphp
 @if ($plantsCategory || $heaterCategory)
 <section class="se-promo-section" aria-label="Offers">
     <div class="se-promo-container">
         @if ($plantsCategory)
         <a href="{{ route('products.index', ['category' => $plantsCategory->id]) }}" class="se-promo-card se-promo-card-dark"
-            @if ($plantsCategory->cover_image) style="--promo-image: url('{{ \App\Support\ResizedImage::url($plantsCategory->cover_image, 640) }}')" @endif>
+            @if (!empty($plantsCategory->cover_image)) style="--promo-image: url('{{ \App\Support\ResizedImage::url($plantsCategory->cover_image, 640) }}')" @endif>
             <span class="se-promo-tag">PM Surya Ghar Yojana</span>
             <h3>Rooftop Solar with Government Subsidy</h3>
             <p>Cut your electricity bill with an on-grid rooftop system. We help with net metering and subsidy paperwork.</p>
@@ -340,7 +342,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
 
         @if ($heaterCategory)
         <a href="{{ route('products.index', ['category' => $heaterCategory->id]) }}" class="se-promo-card se-promo-card-warm"
-            @if ($heaterCategory->cover_image) style="--promo-image: url('{{ \App\Support\ResizedImage::url($heaterCategory->cover_image, 640) }}')" @endif>
+            @if (!empty($heaterCategory->cover_image)) style="--promo-image: url('{{ \App\Support\ResizedImage::url($heaterCategory->cover_image, 640) }}')" @endif>
             <span class="se-promo-tag">Built for Hill Winters</span>
             <h3>Glass Line Solar Water Heaters</h3>
             <p>Corrosion-resistant tanks and high-efficiency tubes for reliable hot water all year round.</p>
@@ -448,8 +450,8 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
                         @else
                         <span class="se-star se-star-empty" aria-hidden="true">★</span>
                         @endif
-                        @endfor
-                        <span class="se-testimonial-rating">{{ number_format($ratingValue, 1) }}/5</span>
+                    @endfor
+                    <span class="se-testimonial-rating">{{ number_format($ratingValue, 1) }}/5</span>
                 </div>
 
                 <blockquote class="se-testimonial-review">“{{ $testimonial->review }}”</blockquote>
@@ -458,7 +460,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
                     <span class="se-testimonial-avatar" aria-hidden="true">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr(trim($testimonial->customer_name), 0, 1)) }}</span>
                     <div class="se-testimonial-customer-details">
                         <h3>{{ $testimonial->customer_name }}</h3>
-                        @if ($testimonial->designation)
+                        @if (!empty($testimonial->designation))
                         <p>{{ $testimonial->designation }}</p>
                         @endif
                     </div>
