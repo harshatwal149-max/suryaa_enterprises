@@ -13,7 +13,7 @@ $footerTextColor = $siteSettings?->footer_text_color ?: '#ffffff';
 $floatingWhatsappNumber = preg_replace(
     '/\D+/',
     '',
-    (string) ($siteSettings?->whatsapp_number ?? '')
+    (string) ($siteSettings?->whatsapp_number ?? '919218616000')
 );
 
 $hideFloatingButtons = request()->routeIs('testimonials.create');
@@ -33,9 +33,18 @@ $needsToastr = session()->has('success')
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    {{-- SEO Partial & Canonical URL --}}
     @include('partials.seo')
+    <link rel="canonical" href="{{ url()->current() }}">
+
+    {{-- Local Himachal Geo Tags for Local SEO Ranking --}}
+    <meta name="geo.region" content="IN-HP">
+    <meta name="geo.placename" content="Dharamshala, Kangra, Himachal Pradesh">
+    <meta name="geo.position" content="32.2190;76.3234">
+    <meta name="ICBM" content="32.2190, 76.3234">
     <meta name="google-site-verification" content="LCwLtzsV7o2GJm7k5d3uoQcryyUidWhggsxs1esAWjc" />
 
+    {{-- Favicon & Touch Icons --}}
     @if($siteSettings?->favicon_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($siteSettings->favicon_path))
     <link rel="icon" href="{{ \App\Support\ResizedImage::url($siteSettings->favicon_path, 160) }}">
     @else
@@ -268,7 +277,6 @@ $needsToastr = session()->has('success')
         }
 
         @media (max-width: 700px) {
-
             .footer-container {
                 grid-template-columns: 1fr;
                 gap: 28px;
@@ -292,6 +300,7 @@ $needsToastr = session()->has('success')
     </style>
 
     @stack('styles')
+    @stack('schema')
 </head>
 
 <body>

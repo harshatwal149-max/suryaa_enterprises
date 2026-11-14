@@ -22,7 +22,7 @@ $fullTitle = match (true) {
 };
 
 $metaDescription = Seo::excerpt(
-    $sectionText('meta_description') ?: ($seoSettings?->seo_description ?: Seo::DEFAULT_DESCRIPTION)
+    $sectionText('meta_description') ?: ($seoSettings?->seo_description ?: 'Authorized Solar Equipment Distributor in Himachal Pradesh. Dealing in Solar Power Plants, Water Heaters, and Street Lights.')
 );
 
 $metaRobots = $sectionText('robots') ?: ($seoSettings?->default_meta_robots ?: 'index,follow');
@@ -43,9 +43,13 @@ $ogImage = $sectionText('og_image') ?: Seo::defaultImageUrl();
 <meta name="description" content="{{ $metaDescription }}">
 @endif
 
-<meta name="keywords" content="{{ $seoSettings?->seo_keywords ?: Seo::DEFAULT_KEYWORDS }}">
+<meta name="keywords" content="{{ $seoSettings?->seo_keywords ?: 'Solar panels in Dharamshala, Solar water heater Kangra, Solar equipment distributor HP, Suryaa Enterprises, Servotech solar' }}">
+
+{{-- Local Geo Tags for Himachal Pradesh --}}
 <meta name="geo.region" content="IN-HP">
-<meta name="geo.placename" content="{{ Seo::AREA }}">
+<meta name="geo.placename" content="Dharamshala, Kangra">
+<meta name="geo.position" content="32.2190;76.3234">
+<meta name="ICBM" content="32.2190, 76.3234">
 
 <meta name="robots" content="{{ $metaRobots }}">
 <link rel="canonical" href="{{ $canonicalUrl }}">
@@ -77,5 +81,35 @@ $ogImage = $sectionText('og_image') ?: Seo::defaultImageUrl();
 
 {{-- Structured data present on every page --}}
 {{ Seo::jsonLd(Seo::organization(), Seo::website()) }}
+
+{{-- Local Business Schema (CRITICAL FOR LOCAL SEO) --}}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HomeAndConstructionBusiness",
+  "name": "Suryaa Enterprises",
+  "url": "{{ url('/') }}",
+  "logo": "{{ \App\Support\Seo::logoUrl() }}",
+  "image": "{{ $ogImage }}",
+  "description": "Authorised Solar Equipment Distributor in Himachal Pradesh. Specializing in Solar Power Plants, Solar Water Heaters, and Solar Street Lights.",
+  "telephone": "+91-92186-16000",
+  "email": "suryaaent.kangra@gmail.com",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Vidhan Sabha Road, Mandal (Masrer)",
+    "addressLocality": "Dharamshala, Kangra",
+    "addressRegion": "Himachal Pradesh",
+    "addressCountry": "IN"
+  },
+  "areaServed": [
+    "Dharamshala",
+    "Kangra",
+    "Palampur",
+    "Himachal Pradesh"
+  ],
+  "brands": ["Active Plus", "Super Solar", "Servotech"],
+  "priceRange": "$$"
+}
+</script>
 
 @stack('schema')

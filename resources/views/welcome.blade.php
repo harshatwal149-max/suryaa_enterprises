@@ -1,13 +1,71 @@
 @extends('layouts.frontend')
 
+@section('title', 'Best Solar Panel & Water Heater Distributor in Himachal Pradesh | Suryaa Enterprises')
+@section('meta_description', 'Suryaa Enterprises (Since 2007) is Himachal Pradesh’s trusted authorized distributor for Super Solar, Active Plus, Servotech & N Light. Get top-quality solar power plants, glass-line solar water heaters, and solar street lights across Kangra, Dharamshala, Shimla, Mandi, and all HP districts with complete installation & subsidy support.')
+
 @push('schema')
-{{ \App\Support\Seo::jsonLd(
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "Suryaa Enterprises",
+  "image": "https://suryaasolarsolution.com/images/logo.png",
+  "@id": "https://suryaasolarsolution.com/#localbusiness",
+  "url": "https://suryaasolarsolution.com",
+  "telephone": "+91-9218616000",
+  "priceRange": "₹₹",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Vidhan Sabha Road, Mandal (Masrer)",
+    "addressLocality": "Dharamshala",
+    "addressRegion": "Himachal Pradesh",
+    "postalCode": "176215",
+    "addressCountry": "IN"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 32.2190,
+    "longitude": 76.3234
+  },
+  "openingHoursSpecification": {
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "opens": "09:00",
+    "closes": "19:00"
+  },
+  "areaServed": [
+    { "@type": "AdministrativeArea", "name": "Himachal Pradesh" },
+    { "@type": "AdministrativeArea", "name": "Kangra" },
+    { "@type": "AdministrativeArea", "name": "Dharamshala" },
+    { "@type": "AdministrativeArea", "name": "Mandi" },
+    { "@type": "AdministrativeArea", "name": "Shimla" },
+    { "@type": "AdministrativeArea", "name": "Hamirpur" },
+    { "@type": "AdministrativeArea", "name": "Una" },
+    { "@type": "AdministrativeArea", "name": "Kullu" },
+    { "@type": "AdministrativeArea", "name": "Bilaspur" },
+    { "@type": "AdministrativeArea", "name": "Chamba" }
+  ],
+  "sameAs": [
+    "https://suryaasolarsolution.com"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{!! json_encode(\App\Support\Seo::jsonLd(
     \App\Support\Seo::webPage('WebPage', \App\Support\Seo::siteName(), \App\Support\Seo::excerpt(\App\Support\Seo::settings()?->seo_description) ?: null),
-    $products->isNotEmpty() ? \App\Support\Seo::itemList($products->take(12)) + ['name' => 'Featured Solar Products'] : []
-) }}
+    (($products ?? collect())->isNotEmpty()) ? \App\Support\Seo::itemList($products->take(12)) + ['name' => 'Featured Solar Products'] : []
+)) !!}
+</script>
 @endpush
 
-@if ($heroSlides[0]['image'] ?? null)
+@if (($heroSlides[0]['image'] ?? null))
 @push('styles')
 <link rel="preload" as="image" fetchpriority="high" href="{{ \App\Support\ResizedImage::url($heroSlides[0]['image'], 960) }}" imagesrcset="{{ \App\Support\ResizedImage::srcset($heroSlides[0]['image'], [640, 960, 1600]) }}" imagesizes="100vw">
 @endpush
@@ -21,7 +79,6 @@
         @foreach ($heroSlides as $slide)
         <div class="sh-slide {{ $loop->first ? 'is-active' : '' }}" aria-hidden="{{ $loop->first ? 'false' : 'true' }}">
             @if ($slide['image'])
-            {{-- Only the first slide loads up front; the script loads the others just before they show. --}}
             @php
             $slideUrl = \App\Support\ResizedImage::url($slide['image'], 960);
             $slideSrcset = \App\Support\ResizedImage::srcset($slide['image'], [640, 960, 1600]);
@@ -94,7 +151,6 @@
                         <p>We’ll call you back within 24 hours.</p>
                     </div>
                 </div>
-
 
                 <div class="sh-success" role="status" aria-live="polite" hidden>
                     <svg class="sh-success-check" viewBox="0 0 52 52" aria-hidden="true">
@@ -238,7 +294,7 @@
             </a>
         </div>
 
-        @if ($products->isNotEmpty() && $categories->count() > 1)
+        @if (($products ?? collect())->isNotEmpty() && $categories->count() > 1)
         <div class="se-product-tabs" role="tablist" aria-label="Filter products by category">
             <button type="button" class="se-product-tab is-active" role="tab" aria-selected="true" data-filter="all">All</button>
             @foreach ($categories as $category)
@@ -250,7 +306,7 @@
         @endif
 
         <div class="se-products-grid" id="se-featured-grid" data-limit="8">
-            @forelse ($products as $product)
+            @forelse (($products ?? collect()) as $product)
             @include('partials.product-card', ['product' => $product, 'hidden' => $loop->index >= 8])
             @empty
             <div class="se-products-empty">
@@ -270,7 +326,7 @@ $plantsCategory = $categories->firstWhere('slug', 'solar-power-plants');
 $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
 @endphp
 @if ($plantsCategory || $heaterCategory)
-<section class="se-promo-section" aria-label="Offerssss">
+<section class="se-promo-section" aria-label="Offers">
     <div class="se-promo-container">
         @if ($plantsCategory)
         <a href="{{ route('products.index', ['category' => $plantsCategory->id]) }}" class="se-promo-card se-promo-card-dark"
@@ -296,7 +352,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
 @endif
 
 {{-- TOP DEALS CAROUSEL --}}
-@if ($deals->isNotEmpty())
+@if (($deals ?? collect())->isNotEmpty())
 <section class="se-deals-section" id="top-deals" aria-labelledby="se-deals-title">
     <div class="se-products-container">
         <div class="se-products-heading">
@@ -330,10 +386,10 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
             <p>We supply, install and service solar equipment across Kangra and Himachal Pradesh, with genuine products and honest advice.</p>
 
             <div class="se-stats">
-                <div class="se-stat"><strong>{{ $stats['products'] }}+</strong><span>Solar Products</span></div>
-                <div class="se-stat"><strong>{{ $stats['categories'] }}</strong><span>Product Categories</span></div>
+                <div class="se-stat"><strong>{{ $stats['products'] ?? 0 }}+</strong><span>Solar Products</span></div>
+                <div class="se-stat"><strong>{{ $stats['categories'] ?? 0 }}</strong><span>Product Categories</span></div>
                 <div class="se-stat"><strong>ISO</strong><span>9001:2015 Certified</span></div>
-                @if ($stats['reviews'] > 0)
+                @if (($stats['reviews'] ?? 0) > 0)
                 <div class="se-stat"><strong>{{ $stats['reviews'] }}</strong><span>Customer Reviews</span></div>
                 @endif
             </div>
@@ -346,7 +402,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
             </li>
             <li class="se-step">
                 <span class="se-step-icon"><i class="fa-solid fa-ruler-combined" aria-hidden="true"></i></span>
-                <div><h3>Site Survey &amp; Quote</h3><p>We check your site and suggest the right capacity and price.</p></div>
+                <div><h3>Site Survey & Quote</h3><p>We check your site and suggest the right capacity and price.</p></div>
             </li>
             <li class="se-step">
                 <span class="se-step-icon"><i class="fa-solid fa-solar-panel" aria-hidden="true"></i></span>
@@ -354,7 +410,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
             </li>
             <li class="se-step">
                 <span class="se-step-icon"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></span>
-                <div><h3>Warranty &amp; Service</h3><p>Local after-sales support whenever you need it.</p></div>
+                <div><h3>Warranty & Service</h3><p>Local after-sales support whenever you need it.</p></div>
             </li>
         </ol>
     </div>
@@ -385,7 +441,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
             <article class="se-testimonial-card">
                 <div class="se-testimonial-stars" role="img" aria-label="Rated {{ number_format($ratingValue, 1) }} out of 5 stars">
                     @for ($star = 1; $star <= 5; $star++)
-                        @if ($ratingValue>= $star)
+                        @if ($ratingValue >= $star)
                         <span class="se-star se-star-full" aria-hidden="true">★</span>
                         @elseif ($ratingValue >= ($star - 0.5))
                         <span class="se-star se-star-half" aria-hidden="true">★</span>
@@ -415,6 +471,10 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
 @endif
 
 {{-- ENQUIRY --}}
+@php
+$phoneNumber = $phoneNumber ?? '+91-9218616000';
+$whatsappNumber = $whatsappNumber ?? '919218616000';
+@endphp
 <section class="se-enquiry-section" id="enquiry">
     <div class="se-enquiry-container">
         <div class="se-enquiry-info">
@@ -522,7 +582,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         <strong>{{ session('success') ? 'Thank You!' : 'Check Your Details' }}</strong>
         <span>{{ session('success') ?? 'Please correct the errors in the form.' }}</span>
     </div>
-    <button type="button" class="se-toast-close" aria-label="Close notification">&times;</button>
+    <button type="button" class="se-toast-close" aria-label="Close notification">×</button>
     <div class="se-toast-progress"></div>
 </div>
 @endif
@@ -532,7 +592,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
 @push('styles')
 <style>
     /* =========================
-       HERO CAROUSEL + QUICK QUOTE FORM
+        HERO CAROUSEL + QUICK QUOTE FORM
     ========================= */
     .sh-hero,
     .sh-hero * {
@@ -553,7 +613,6 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         color: #fff;
     }
 
-    /* Slides: diagonal wipe reveal + slow zoom */
     .sh-slides {
         position: absolute;
         inset: 0;
@@ -614,7 +673,6 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         from {
             clip-path: polygon(115% 0, 115% 0, 100% 100%, 100% 100%);
         }
-
         to {
             clip-path: polygon(0 0, 115% 0, 100% 100%, -15% 100%);
         }
@@ -624,7 +682,6 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         from {
             clip-path: polygon(0 0, 0 0, -15% 100%, -15% 100%);
         }
-
         to {
             clip-path: polygon(0 0, 115% 0, 100% 100%, -15% 100%);
         }
@@ -634,13 +691,11 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         from {
             transform: scale(1.16);
         }
-
         to {
             transform: scale(1);
         }
     }
 
-    /* Content grid: copy on the left, form on the right */
     .sh-inner {
         position: relative;
         z-index: 4;
@@ -684,21 +739,10 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         animation: shRise .85s cubic-bezier(.2, .8, .2, 1) both;
     }
 
-    .sh-copy-item.is-active > :nth-child(1) {
-        animation-delay: .25s;
-    }
-
-    .sh-copy-item.is-active > :nth-child(2) {
-        animation-delay: .4s;
-    }
-
-    .sh-copy-item.is-active > :nth-child(3) {
-        animation-delay: .55s;
-    }
-
-    .sh-copy-item.is-active > :nth-child(4) {
-        animation-delay: .7s;
-    }
+    .sh-copy-item.is-active > :nth-child(1) { animation-delay: .25s; }
+    .sh-copy-item.is-active > :nth-child(2) { animation-delay: .4s; }
+    .sh-copy-item.is-active > :nth-child(3) { animation-delay: .55s; }
+    .sh-copy-item.is-active > :nth-child(4) { animation-delay: .7s; }
 
     .sh-copy-item.is-leaving > * {
         animation: shFade .4s ease both;
@@ -710,7 +754,6 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
             transform: translateY(32px);
             filter: blur(6px);
         }
-
         to {
             opacity: 1;
             transform: none;
@@ -719,14 +762,8 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
     }
 
     @keyframes shFade {
-        from {
-            opacity: 1;
-        }
-
-        to {
-            opacity: 0;
-            transform: translateY(-18px);
-        }
+        from { opacity: 1; }
+        to { opacity: 0; transform: translateY(-18px); }
     }
 
     .sh-kicker {
@@ -790,9 +827,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         transition: transform .25s ease, background .25s ease, box-shadow .25s ease;
     }
 
-    .sh-btn:hover {
-        transform: translateY(-2px);
-    }
+    .sh-btn:hover { transform: translateY(-2px); }
 
     .sh-btn-primary {
         background: var(--hero-accent);
@@ -800,7 +835,6 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         box-shadow: 0 10px 30px rgba(251, 191, 36, .3);
     }
 
-    /* Light sweep across the primary button on hover */
     .sh-btn-primary::after {
         position: absolute;
         top: 0;
@@ -813,17 +847,9 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         transition: left .6s ease;
     }
 
-    .sh-btn-primary:hover::after {
-        left: 130%;
-    }
-
-    .sh-btn-primary i {
-        transition: transform .25s ease;
-    }
-
-    .sh-btn-primary:hover i {
-        transform: translateX(4px);
-    }
+    .sh-btn-primary:hover::after { left: 130%; }
+    .sh-btn-primary i { transition: transform .25s ease; }
+    .sh-btn-primary:hover i { transform: translateX(4px); }
 
     .sh-btn-ghost {
         border: 1px solid rgba(255, 255, 255, .55);
@@ -831,9 +857,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         backdrop-filter: blur(6px);
     }
 
-    .sh-btn-ghost:hover {
-        background: rgba(255, 255, 255, .12);
-    }
+    .sh-btn-ghost:hover { background: rgba(255, 255, 255, .12); }
 
     .sh-badges {
         display: flex;
@@ -852,7 +876,6 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         color: var(--hero-accent);
     }
 
-    /* Form card with an animated glowing border */
     .sh-form-card {
         position: relative;
         padding: 1.5px;
@@ -877,18 +900,13 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         background: linear-gradient(160deg, rgba(6, 50, 39, .97), rgba(3, 30, 24, .97));
     }
 
-    @keyframes shSpin {
-        to {
-            transform: rotate(360deg);
-        }
-    }
+    @keyframes shSpin { to { transform: rotate(360deg); } }
 
     @keyframes shCardIn {
         from {
             opacity: 0;
             transform: translateY(40px) scale(.97);
         }
-
         to {
             opacity: 1;
             transform: none;
@@ -933,7 +951,6 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         gap: 14px;
     }
 
-    /* Floating-label fields */
     .sh-field {
         position: relative;
     }
@@ -961,9 +978,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         cursor: pointer;
     }
 
-    .sh-field select option {
-        color: #1f2937;
-    }
+    .sh-field select option { color: #1f2937; }
 
     .sh-field label {
         position: absolute;
@@ -1028,20 +1043,11 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         font-size: 12px;
     }
 
-    .sh-field-error:empty {
-        display: none;
-    }
+    .sh-field-error:empty { display: none; }
 
     @keyframes shShake {
-
-        25%,
-        75% {
-            transform: translateX(-4px);
-        }
-
-        50% {
-            transform: translateX(4px);
-        }
+        25%, 75% { transform: translateX(-4px); }
+        50% { transform: translateX(4px); }
     }
 
     .sh-submit {
@@ -1084,24 +1090,12 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
     }
 
     @keyframes shSweep {
-
-        0%,
-        60% {
-            left: -80%;
-        }
-
-        100% {
-            left: 130%;
-        }
+        0%, 60% { left: -80%; }
+        100% { left: 130%; }
     }
 
-    .sh-submit-arrow {
-        transition: transform .25s ease;
-    }
-
-    .sh-submit:hover .sh-submit-arrow {
-        transform: translateX(4px);
-    }
+    .sh-submit-arrow { transition: transform .25s ease; }
+    .sh-submit:hover .sh-submit-arrow { transform: translateX(4px); }
 
     .sh-spinner {
         display: none;
@@ -1113,17 +1107,9 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         animation: shSpin .7s linear infinite;
     }
 
-    .sh-submit.is-loading {
-        cursor: wait;
-    }
-
-    .sh-submit.is-loading .sh-spinner {
-        display: block;
-    }
-
-    .sh-submit.is-loading .sh-submit-arrow {
-        display: none;
-    }
+    .sh-submit.is-loading { cursor: wait; }
+    .sh-submit.is-loading .sh-spinner { display: block; }
+    .sh-submit.is-loading .sh-submit-arrow { display: none; }
 
     .sh-submit:focus-visible,
     .sh-arrow:focus-visible,
@@ -1140,11 +1126,8 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         text-align: center;
     }
 
-    .sh-form-note i {
-        margin-right: 4px;
-    }
+    .sh-form-note i { margin-right: 4px; }
 
-    /* Success state with a drawn checkmark */
     .sh-success {
         padding: 0 0 16px;
         scroll-margin-top: 110px;
@@ -1175,11 +1158,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         animation: shDraw .45s ease .6s forwards;
     }
 
-    @keyframes shDraw {
-        to {
-            stroke-dashoffset: 0;
-        }
-    }
+    @keyframes shDraw { to { stroke-dashoffset: 0; } }
 
     .sh-success h3 {
         margin: 0 0 4px;
@@ -1194,7 +1173,6 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         line-height: 1.6;
     }
 
-    /* Bottom navigation: numbered tabs with autoplay progress */
     .sh-nav {
         position: absolute;
         right: 0;
@@ -1237,9 +1215,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
     }
 
     .sh-tab:hover,
-    .sh-tab.is-active {
-        color: #fff;
-    }
+    .sh-tab.is-active { color: #fff; }
 
     .sh-tab-num {
         font-size: 12px;
@@ -1247,9 +1223,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         letter-spacing: 1px;
     }
 
-    .sh-tab.is-active .sh-tab-num {
-        color: var(--hero-accent);
-    }
+    .sh-tab.is-active .sh-tab-num { color: var(--hero-accent); }
 
     .sh-tab-label {
         max-width: 100%;
@@ -1280,7 +1254,6 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         transform-origin: left;
     }
 
-    /* The active tab's fill drives autoplay: the slider advances on animationend. */
     .sh-tab.is-active .sh-tab-progress span {
         animation: shProgress var(--hero-interval) linear forwards;
     }
@@ -1294,11 +1267,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         transform: scaleX(1);
     }
 
-    @keyframes shProgress {
-        to {
-            transform: scaleX(1);
-        }
-    }
+    @keyframes shProgress { to { transform: scaleX(1); } }
 
     .sh-arrows {
         display: flex;
@@ -1334,16 +1303,9 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         }
     }
 
-    /* Tablet / mobile: copy, then slide tabs, then the form, stacked */
     @media (max-width: 900px) {
-        .sh-hero {
-            min-height: 0;
-        }
-
-        .sh-inner {
-            display: contents;
-        }
-
+        .sh-hero { min-height: 0; }
+        .sh-inner { display: contents; }
         .sh-copy,
         .sh-nav,
         .sh-form-card {
@@ -1353,90 +1315,35 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
             margin-right: auto;
             margin-left: auto;
         }
-
-        .sh-copy {
-            order: 1;
-            padding: 56px 0 28px;
-        }
-
-        .sh-nav {
-            order: 2;
-            padding-bottom: 28px;
-        }
-
-        .sh-form-card {
-            order: 3;
-            max-width: 560px;
-            margin-bottom: 40px;
-        }
-
+        .sh-copy { order: 1; padding: 56px 0 28px; }
+        .sh-nav { order: 2; padding-bottom: 28px; }
+        .sh-form-card { order: 3; max-width: 560px; margin-bottom: 40px; }
         .sh-overlay {
             background:
                 radial-gradient(circle at 85% 8%, rgba(251, 191, 36, .2), transparent 35%),
                 linear-gradient(180deg, rgba(2, 44, 34, .72) 0%, rgba(2, 30, 24, .9) 45%, #022c22 75%);
         }
-
-        .sh-badges {
-            margin-top: 28px;
-        }
+        .sh-badges { margin-top: 28px; }
     }
 
     @media (max-width: 560px) {
-        .sh-copy {
-            padding-top: 40px;
-        }
-
-        .sh-kicker {
-            font-size: 11px;
-        }
-
-        .sh-heading {
-            font-size: clamp(30px, 9vw, 38px);
-            letter-spacing: -.5px;
-        }
-
-        .sh-description {
-            margin-bottom: 24px;
-            font-size: 15px;
-        }
-
-        .sh-btn {
-            flex: 1 1 auto;
-            min-height: 48px;
-            padding: 12px 18px;
-            font-size: 14px;
-        }
-
-        .sh-tab-label,
-        .sh-arrows {
-            display: none;
-        }
-
-        .sh-tab {
-            align-items: center;
-        }
-
-        .sh-tab-progress {
-            right: 4px;
-            left: 4px;
-        }
-
-        .sh-form-body {
-            padding: 24px 18px 20px;
-        }
-
-        .sh-form-head h2 {
-            font-size: 20px;
-        }
+        .sh-copy { padding-top: 40px; }
+        .sh-kicker { font-size: 11px; }
+        .sh-heading { font-size: clamp(30px, 9vw, 38px); letter-spacing: -.5px; }
+        .sh-description { margin-bottom: 24px; font-size: 15px; }
+        .sh-btn { flex: 1 1 auto; min-height: 48px; padding: 12px 18px; font-size: 14px; }
+        .sh-tab-label, .sh-arrows { display: none; }
+        .sh-tab { align-items: center; }
+        .sh-tab-progress { right: 4px; left: 4px; }
+        .sh-form-body { padding: 24px 18px 20px; }
+        .sh-form-head h2 { font-size: 20px; }
     }
 
     /* =========================
-       FEATURED PRODUCTS
+        FEATURED PRODUCTS
     ========================= */
     .se-products-section,
-    .se-products-section * {
-        box-sizing: border-box;
-    }
+    .se-products-section * { box-sizing: border-box; }
 
     .se-products-section {
         padding: 76px 24px 84px;
@@ -1457,9 +1364,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         margin-bottom: 34px;
     }
 
-    .se-products-heading-copy {
-        min-width: 0;
-    }
+    .se-products-heading-copy { min-width: 0; }
 
     .se-products-eyebrow,
     .se-testimonials-eyebrow {
@@ -1565,12 +1470,10 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
     }
 
     /* =========================
-       TESTIMONIALS
+        TESTIMONIALS
     ========================= */
     .se-testimonials-section,
-    .se-testimonials-section * {
-        box-sizing: border-box;
-    }
+    .se-testimonials-section * { box-sizing: border-box; }
 
     .se-testimonials-section {
         padding: 76px 24px 84px;
@@ -1653,9 +1556,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         line-height: 1;
     }
 
-    .se-star-full {
-        color: #f5b301;
-    }
+    .se-star-full { color: #f5b301; }
 
     .se-star-half {
         color: #f5b301;
@@ -1702,9 +1603,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         font-weight: 800;
     }
 
-    .se-testimonial-customer-details {
-        min-width: 0;
-    }
+    .se-testimonial-customer-details { min-width: 0; }
 
     .se-testimonial-customer h3 {
         margin: 0 0 4px;
@@ -1723,12 +1622,10 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
     }
 
     /* =========================
-       ENQUIRY SECTION
+        ENQUIRY SECTION
     ========================= */
     .se-enquiry-section,
-    .se-enquiry-section * {
-        box-sizing: border-box;
-    }
+    .se-enquiry-section * { box-sizing: border-box; }
 
     .se-enquiry-section {
         padding: 80px 24px;
@@ -1746,9 +1643,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         margin: 0 auto;
     }
 
-    .se-enquiry-info {
-        min-width: 0;
-    }
+    .se-enquiry-info { min-width: 0; }
 
     .se-enquiry-label {
         display: inline-block;
@@ -1816,9 +1711,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         box-shadow: 0 18px 50px rgba(27, 57, 39, .08);
     }
 
-    .se-form-heading {
-        margin-bottom: 26px;
-    }
+    .se-form-heading { margin-bottom: 26px; }
 
     .se-form-heading h3 {
         margin: 0 0 9px;
@@ -1853,15 +1746,8 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         font-weight: 700;
     }
 
-    .se-required {
-        color: #d63333;
-    }
-
-    .se-optional {
-        color: #89958e;
-        font-size: 11px;
-        font-weight: 500;
-    }
+    .se-required { color: #d63333; }
+    .se-optional { color: #89958e; font-size: 11px; font-weight: 500; }
 
     .se-form-field input,
     .se-form-field textarea {
@@ -1881,20 +1767,11 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         transition: border-color .2s ease, box-shadow .2s ease;
     }
 
-    .se-form-field input {
-        min-height: 48px;
-    }
-
-    .se-form-field textarea {
-        min-height: 130px;
-        resize: vertical;
-    }
+    .se-form-field input { min-height: 48px; }
+    .se-form-field textarea { min-height: 130px; resize: vertical; }
 
     .se-form-field input::placeholder,
-    .se-form-field textarea::placeholder {
-        color: #a1aca5;
-        opacity: 1;
-    }
+    .se-form-field textarea::placeholder { color: #a1aca5; opacity: 1; }
 
     .se-form-field input:focus,
     .se-form-field textarea:focus {
@@ -1903,9 +1780,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
     }
 
     .se-form-field input[aria-invalid="true"],
-    .se-form-field textarea[aria-invalid="true"] {
-        border-color: #dc6262;
-    }
+    .se-form-field textarea[aria-invalid="true"] { border-color: #dc6262; }
 
     .se-field-error {
         color: #b42323;
@@ -1944,10 +1819,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         outline-offset: 3px;
     }
 
-    .se-submit-arrow {
-        font-size: 20px;
-        line-height: 1;
-    }
+    .se-submit-arrow { font-size: 20px; line-height: 1; }
 
     .se-form-footnote {
         margin: -7px 0 0;
@@ -1967,16 +1839,9 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         line-height: 1.6;
     }
 
-    .se-form-errors ul {
-        margin: 7px 0 0;
-        padding-left: 20px;
-    }
+    .se-form-errors ul { margin: 7px 0 0; padding-left: 20px; }
+    .se-form-errors li+li { margin-top: 4px; }
 
-    .se-form-errors li+li {
-        margin-top: 4px;
-    }
-
-    /* Toast notification */
     .se-toast {
         position: fixed;
         top: 24px;
@@ -1997,15 +1862,8 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         animation: seToastEnter .3s ease-out both;
     }
 
-    .se-toast-success {
-        border-color: #bbf7d0;
-        color: #166534;
-    }
-
-    .se-toast-error {
-        border-color: #fecaca;
-        color: #991b1b;
-    }
+    .se-toast-success { border-color: #bbf7d0; color: #166534; }
+    .se-toast-error { border-color: #fecaca; color: #991b1b; }
 
     .se-toast-icon {
         display: grid;
@@ -2019,13 +1877,8 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         font-weight: 700;
     }
 
-    .se-toast-success .se-toast-icon {
-        background: #16a34a;
-    }
-
-    .se-toast-error .se-toast-icon {
-        background: #dc2626;
-    }
+    .se-toast-success .se-toast-icon { background: #16a34a; }
+    .se-toast-error .se-toast-icon { background: #dc2626; }
 
     .se-toast-content {
         display: flex;
@@ -2035,17 +1888,8 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         gap: 4px;
     }
 
-    .se-toast-content strong {
-        font-size: 15px;
-        font-weight: 700;
-    }
-
-    .se-toast-content>span {
-        color: #475569;
-        font-size: 13px;
-        line-height: 1.5;
-        overflow-wrap: anywhere;
-    }
+    .se-toast-content strong { font-size: 15px; font-weight: 700; }
+    .se-toast-content>span { color: #475569; font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
 
     .se-toast-close {
         flex-shrink: 0;
@@ -2069,63 +1913,36 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         animation: seToastCountdown 3.5s linear forwards;
     }
 
-    .se-toast-success .se-toast-progress {
-        background: #16a34a;
-    }
+    .se-toast-success .se-toast-progress { background: #16a34a; }
+    .se-toast-error .se-toast-progress { background: #dc2626; }
 
-    .se-toast-error .se-toast-progress {
-        background: #dc2626;
-    }
-
-    .se-toast.se-toast-leaving {
-        animation: seToastExit .25s ease-in forwards;
-    }
+    .se-toast.se-toast-leaving { animation: seToastExit .25s ease-in forwards; }
 
     @keyframes seToastEnter {
-        from {
-            opacity: 0;
-            transform: translateX(24px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
+        from { opacity: 0; transform: translateX(24px); }
+        to { opacity: 1; transform: translateX(0); }
     }
 
     @keyframes seToastExit {
-        to {
-            opacity: 0;
-            transform: translateX(24px);
-        }
+        to { opacity: 0; transform: translateX(24px); }
     }
 
     @keyframes seToastCountdown {
-        from {
-            transform: scaleX(1);
-        }
-
-        to {
-            transform: scaleX(0);
-        }
+        from { transform: scaleX(1); }
+        to { transform: scaleX(0); }
     }
 
     /* =========================
-       TRUST STRIP
+        TRUST STRIP
     ========================= */
     .se-trust-strip,
     .se-trust-strip *,
     .se-categories-section *,
     .se-promo-section *,
     .se-deals-section *,
-    .se-why-section * {
-        box-sizing: border-box;
-    }
+    .se-why-section * { box-sizing: border-box; }
 
-    .se-trust-strip {
-        padding: 0 24px;
-        margin: -8px 0 0;
-    }
+    .se-trust-strip { padding: 0 24px; margin: -8px 0 0; }
 
     .se-trust-container {
         display: grid;
@@ -2146,9 +1963,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         padding: 20px 22px;
     }
 
-    .se-trust-item + .se-trust-item {
-        border-left: 1px solid #edf1ee;
-    }
+    .se-trust-item + .se-trust-item { border-left: 1px solid #edf1ee; }
 
     .se-trust-item > i {
         display: grid;
@@ -2178,12 +1993,9 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
     }
 
     /* =========================
-       SHOP BY CATEGORY
+        SHOP BY CATEGORY
     ========================= */
-    .se-categories-section {
-        padding: 72px 24px 8px;
-        background: #fff;
-    }
+    .se-categories-section { padding: 72px 24px 8px; background: #fff; }
 
     .se-section-heading-center {
         max-width: 680px;
@@ -2247,13 +2059,9 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         transition: transform .35s ease;
     }
 
-    .se-category-card:hover .se-category-image img {
-        transform: scale(1.06);
-    }
+    .se-category-card:hover .se-category-image img { transform: scale(1.06); }
 
-    .se-category-body {
-        padding: 14px 16px 16px;
-    }
+    .se-category-body { padding: 14px 16px 16px; }
 
     .se-category-body h3 {
         margin: 0 0 6px;
@@ -2275,13 +2083,11 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         transition: transform .2s ease;
     }
 
-    .se-category-card:hover .se-category-body span i {
-        transform: translateX(3px);
-    }
-    /* =========================
-       PRODUCT TABS
-    ========================= */
+    .se-category-card:hover .se-category-body span i { transform: translateX(3px); }
 
+    /* =========================
+        PRODUCT TABS
+    ========================= */
     .se-product-tabs {
         display: flex;
         gap: 10px;
@@ -2291,9 +2097,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         scrollbar-width: none;
     }
 
-    .se-product-tabs::-webkit-scrollbar {
-        display: none;
-    }
+    .se-product-tabs::-webkit-scrollbar { display: none; }
 
     .se-product-tab {
         flex: 0 0 auto;
@@ -2322,12 +2126,9 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
     }
 
     /* =========================
-       PROMO BANNERS
+        PROMO BANNERS
     ========================= */
-    .se-promo-section {
-        padding: 0 24px 76px;
-        background: #fff;
-    }
+    .se-promo-section { padding: 0 24px 76px; background: #fff; }
 
     .se-promo-container {
         display: grid;
@@ -2371,9 +2172,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         background: linear-gradient(100deg, rgba(124, 45, 18, .94) 0%, rgba(154, 52, 18, .72) 55%, rgba(154, 52, 18, .25) 100%);
     }
 
-    .se-promo-card:hover::before {
-        opacity: .9;
-    }
+    .se-promo-card:hover::before { opacity: .9; }
 
     .se-promo-tag {
         align-self: flex-start;
@@ -2403,33 +2202,19 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         line-height: 1.7;
     }
 
-    .se-promo-link {
-        font-size: 14px;
-        font-weight: 800;
-    }
-
-    .se-promo-link i {
-        margin-left: 6px;
-        transition: transform .2s ease;
-    }
-
-    .se-promo-card:hover .se-promo-link i {
-        transform: translateX(4px);
-    }
+    .se-promo-link { font-size: 14px; font-weight: 800; }
+    .se-promo-link i { margin-left: 6px; transition: transform .2s ease; }
+    .se-promo-card:hover .se-promo-link i { transform: translateX(4px); }
 
     /* =========================
-       TOP DEALS CAROUSEL
+        TOP DEALS CAROUSEL
     ========================= */
     .se-deals-section {
         padding: 72px 24px 80px;
         background: linear-gradient(180deg, #fffbeb 0%, #fff 100%);
     }
 
-    .se-carousel-controls {
-        display: flex;
-        flex: 0 0 auto;
-        gap: 10px;
-    }
+    .se-carousel-controls { display: flex; flex: 0 0 auto; gap: 10px; }
 
     .se-carousel-btn {
         display: grid;
@@ -2450,10 +2235,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         color: #fff;
     }
 
-    .se-carousel-btn:disabled {
-        opacity: .4;
-        cursor: default;
-    }
+    .se-carousel-btn:disabled { opacity: .4; cursor: default; }
 
     .se-deals-track {
         display: grid;
@@ -2467,23 +2249,13 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         scrollbar-width: thin;
     }
 
-    .se-deals-track > .se-product-card {
-        scroll-snap-align: start;
-    }
-
-    .se-deals-track:focus-visible {
-        outline: 3px solid #8be0ac;
-        outline-offset: 4px;
-    }
+    .se-deals-track > .se-product-card { scroll-snap-align: start; }
+    .se-deals-track:focus-visible { outline: 3px solid #8be0ac; outline-offset: 4px; }
 
     /* =========================
-       WHY CHOOSE US
+        WHY CHOOSE US
     ========================= */
-    .se-why-section {
-        padding: 80px 24px;
-        background: #022c22;
-        color: #fff;
-    }
+    .se-why-section { padding: 80px 24px; background: #022c22; color: #fff; }
 
     .se-why-container {
         display: grid;
@@ -2492,9 +2264,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         gap: clamp(32px, 5vw, 72px);
     }
 
-    .se-why-copy .se-products-eyebrow {
-        color: #fbbf24;
-    }
+    .se-why-copy .se-products-eyebrow { color: #fbbf24; }
 
     .se-why-copy h2 {
         margin: 0 0 16px;
@@ -2588,26 +2358,10 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         font-weight: 800;
     }
 
-    .se-step h3 {
-        margin: 0 0 4px;
-        font-size: 15px;
-        font-weight: 800;
-    }
+    .se-step h3 { margin: 0 0 4px; font-size: 15px; font-weight: 800; }
+    .se-step p { margin: 0; color: #65756d; font-size: 13px; line-height: 1.6; }
 
-    .se-step p {
-        margin: 0;
-        color: #65756d;
-        font-size: 13px;
-        line-height: 1.6;
-    }
-
-    /* Quick contact buttons next to the enquiry form */
-    .se-quick-contact {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-top: 30px;
-    }
+    .se-quick-contact { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
 
     .se-quick-contact-btn {
         display: inline-flex;
@@ -2623,312 +2377,98 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         transition: transform .2s ease, filter .2s ease;
     }
 
-    .se-quick-contact-btn:hover {
-        transform: translateY(-2px);
-        filter: brightness(.92);
-    }
+    .se-quick-contact-btn:hover { transform: translateY(-2px); filter: brightness(.92); }
+    .se-quick-call { background: var(--primary-color, #047857); }
+    .se-quick-whatsapp { background: #25d366; }
 
-    .se-quick-call {
-        background: var(--primary-color, #047857);
-    }
-
-    .se-quick-whatsapp {
-        background: #25d366;
-    }
-
-    /* =========================
-       RESPONSIVE BREAKPOINTS
-    ========================= */
     @media (max-width: 1050px) {
-        .se-products-grid {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 20px;
-        }
+        .se-products-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
     }
 
     @media (max-width: 900px) {
-        .se-testimonials-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 18px;
-        }
-
-        .se-enquiry-section {
-            padding: 62px 22px;
-        }
-
-        .se-enquiry-container {
-            max-width: 700px;
-            grid-template-columns: minmax(0, 1fr);
-            gap: 34px;
-        }
-
-        .se-enquiry-info h2 {
-            max-width: 600px;
-        }
-
-        .se-enquiry-form-card {
-            width: 100%;
-        }
+        .se-testimonials-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+        .se-enquiry-section { padding: 62px 22px; }
+        .se-enquiry-container { max-width: 700px; grid-template-columns: minmax(0, 1fr); gap: 34px; }
+        .se-enquiry-info h2 { max-width: 600px; }
+        .se-enquiry-form-card { width: 100%; }
     }
 
     @media (max-width: 768px) {
-
-        .se-products-section {
-            padding: 56px 20px 62px;
-        }
-
-        .se-products-heading {
-            align-items: flex-start;
-            flex-direction: column;
-            gap: 17px;
-            margin-bottom: 25px;
-        }
-
-        .se-products-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 16px;
-        }
-
-        .se-testimonials-section {
-            padding: 56px 20px 62px;
-        }
-
-        .se-testimonials-heading {
-            margin-bottom: 24px;
-        }
-
-        .se-testimonials-heading p {
-            font-size: 14px;
-        }
-
-        .se-testimonials-actions {
-            margin-bottom: 25px;
-        }
-
-        .se-testimonial-card {
-            padding: 22px;
-        }
-
-        .se-enquiry-section {
-            padding: 55px 20px;
-        }
+        .se-products-section { padding: 56px 20px 62px; }
+        .se-products-heading { align-items: flex-start; flex-direction: column; gap: 17px; margin-bottom: 25px; }
+        .se-products-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+        .se-testimonials-section { padding: 56px 20px 62px; }
+        .se-testimonials-heading { margin-bottom: 24px; }
+        .se-testimonials-heading p { font-size: 14px; }
+        .se-testimonials-actions { margin-bottom: 25px; }
+        .se-testimonial-card { padding: 22px; }
+        .se-enquiry-section { padding: 55px 20px; }
     }
 
     @media (max-width: 560px) {
-
-        .se-products-section {
-            padding: 44px 14px 50px;
-        }
-
-        .se-products-heading h2,
-        .se-testimonials-heading h2 {
-            font-size: 29px;
-        }
-
-        .se-products-heading p {
-            font-size: 13px;
-        }
-
-        .se-products-view-all {
-            max-width: 100%;
-            white-space: normal;
-        }
-
-        .se-products-grid {
-            gap: 12px;
-        }
-
-        .se-testimonials-section {
-            padding: 44px 14px 50px;
-        }
-
-        .se-testimonials-heading p {
-            font-size: 13px;
-        }
-
-        .se-testimonials-grid {
-            grid-template-columns: minmax(0, 1fr);
-            gap: 14px;
-        }
-
-        .se-testimonial-card {
-            padding: 21px;
-        }
-
-        .se-write-review-btn {
-            font-size: 14px;
-        }
-
-        .se-enquiry-section {
-            padding: 44px 15px;
-        }
-
-        .se-enquiry-container {
-            gap: 25px;
-        }
-
-        .se-enquiry-info h2 {
-            font-size: clamp(28px, 7.5vw, 34px);
-        }
-
-        .se-enquiry-description {
-            font-size: 14px;
-        }
-
-        .se-enquiry-points {
-            gap: 13px;
-            margin-top: 23px;
-        }
-
-        .se-enquiry-point {
-            align-items: flex-start;
-            font-size: 13px;
-        }
-
-        .se-enquiry-form-card {
-            padding: 23px 17px;
-            border-radius: 13px;
-        }
-
-        .se-form-heading h3 {
-            font-size: 23px;
-        }
-
-        .se-enquiry-form {
-            gap: 17px;
-        }
-
-        .se-toast {
-            top: 12px;
-            right: 12px;
-            width: calc(100vw - 24px);
-            padding: 13px 14px 16px;
-        }
+        .se-products-section { padding: 44px 14px 50px; }
+        .se-products-heading h2, .se-testimonials-heading h2 { font-size: 29px; }
+        .se-products-heading p { font-size: 13px; }
+        .se-products-view-all { max-width: 100%; white-space: normal; }
+        .se-products-grid { gap: 12px; }
+        .se-testimonials-section { padding: 44px 14px 50px; }
+        .se-testimonials-heading p { font-size: 13px; }
+        .se-testimonials-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+        .se-testimonial-card { padding: 21px; }
+        .se-write-review-btn { font-size: 14px; }
+        .se-enquiry-section { padding: 44px 15px; }
+        .se-enquiry-container { gap: 25px; }
+        .se-enquiry-info h2 { font-size: clamp(28px, 7.5vw, 34px); }
+        .se-enquiry-description { font-size: 14px; }
+        .se-enquiry-points { gap: 13px; margin-top: 23px; }
+        .se-enquiry-point { align-items: flex-start; font-size: 13px; }
+        .se-enquiry-form-card { padding: 23px 17px; border-radius: 13px; }
+        .se-form-heading h3 { font-size: 23px; }
+        .se-enquiry-form { gap: 17px; }
+        .se-toast { top: 12px; right: 12px; width: calc(100vw - 24px); padding: 13px 14px 16px; }
     }
 
     @media (max-width: 360px) {
-
-        .se-products-grid {
-            grid-template-columns: minmax(0, 1fr);
-        }
-
+        .se-products-grid { grid-template-columns: minmax(0, 1fr); }
     }
 
     @media (max-width: 1050px) {
-        .se-trust-container {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .se-trust-item:nth-child(3) {
-            border-left: 0;
-        }
-
-        .se-trust-item:nth-child(n + 3) {
-            border-top: 1px solid #edf1ee;
-        }
-
-        .se-deals-track {
-            grid-auto-columns: calc((100% - 40px) / 3);
-            gap: 20px;
-        }
+        .se-trust-container { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .se-trust-item:nth-child(3) { border-left: 0; }
+        .se-trust-item:nth-child(n + 3) { border-top: 1px solid #edf1ee; }
+        .se-deals-track { grid-auto-columns: calc((100% - 40px) / 3); gap: 20px; }
     }
 
     @media (max-width: 900px) {
-        .se-why-container {
-            grid-template-columns: minmax(0, 1fr);
-        }
+        .se-why-container { grid-template-columns: minmax(0, 1fr); }
     }
 
     @media (max-width: 768px) {
-        .se-categories-section {
-            padding: 54px 20px 4px;
-        }
-
-        .se-categories-grid {
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 14px;
-        }
-
-        .se-category-image {
-            height: 120px;
-        }
-
-        .se-deals-section,
-        .se-why-section {
-            padding: 56px 20px;
-        }
-
-        .se-deals-track {
-            grid-auto-columns: calc((100% - 16px) / 2);
-            gap: 16px;
-        }
-
-        .se-promo-section {
-            padding: 0 20px 56px;
-        }
+        .se-categories-section { padding: 54px 20px 4px; }
+        .se-categories-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+        .se-category-image { height: 120px; }
+        .se-deals-section, .se-why-section { padding: 56px 20px; }
+        .se-deals-track { grid-auto-columns: calc((100% - 16px) / 2); gap: 16px; }
+        .se-promo-section { padding: 0 20px 56px; }
     }
 
     @media (max-width: 560px) {
-        .se-trust-strip {
-            padding: 0 14px;
-        }
-
-        .se-trust-container {
-            grid-template-columns: minmax(0, 1fr);
-        }
-
-        .se-trust-item {
-            padding: 14px 16px;
-        }
-
-        .se-trust-item + .se-trust-item {
-            border-top: 1px solid #edf1ee;
-            border-left: 0;
-        }
-
-        .se-categories-section {
-            padding: 44px 14px 0;
-        }
-
-        .se-promo-section {
-            padding: 0 14px 44px;
-        }
-
-        .se-promo-container {
-            grid-template-columns: minmax(0, 1fr);
-        }
-
-        .se-promo-card {
-            min-height: 240px;
-            padding: 24px;
-        }
-
-        .se-deals-section,
-        .se-why-section {
-            padding: 44px 14px;
-        }
-
-        .se-deals-track {
-            grid-auto-columns: 78%;
-            gap: 12px;
-        }
-
-        .se-carousel-controls {
-            display: none;
-        }
-
-        .se-stat strong {
-            font-size: 24px;
-        }
-
-        .se-quick-contact-btn {
-            flex: 1 1 100%;
-            justify-content: center;
-        }
+        .se-trust-strip { padding: 0 14px; }
+        .se-trust-container { grid-template-columns: minmax(0, 1fr); }
+        .se-trust-item { padding: 14px 16px; }
+        .se-trust-item + .se-trust-item { border-top: 1px solid #edf1ee; border-left: 0; }
+        .se-categories-section { padding: 44px 14px 0; }
+        .se-promo-section { padding: 0 14px 44px; }
+        .se-promo-container { grid-template-columns: minmax(0, 1fr); }
+        .se-promo-card { min-height: 240px; padding: 24px; }
+        .se-deals-section, .se-why-section { padding: 44px 14px; }
+        .se-deals-track { grid-auto-columns: 78%; gap: 12px; }
+        .se-carousel-controls { display: none; }
+        .se-stat strong { font-size: 24px; }
+        .se-quick-contact-btn { flex: 1 1 100%; justify-content: center; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-
         .sh-slide.is-entering,
         .sh-slide.is-active .sh-slide-bg,
         .sh-copy-item.is-active > *,
@@ -2936,17 +2476,10 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         .sh-kicker i,
         .sh-form-glow,
         .sh-form-card,
-        .sh-submit::after {
-            animation: none !important;
-        }
+        .sh-submit::after { animation: none !important; }
 
-        .sh-copy-item.is-active > * {
-            opacity: 1;
-        }
-
-        .sh-copy-item.is-leaving {
-            visibility: hidden;
-        }
+        .sh-copy-item.is-active > * { opacity: 1; }
+        .sh-copy-item.is-leaving { visibility: hidden; }
 
         .se-product-card,
         .se-product-image,
@@ -2956,14 +2489,9 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
         .se-quick-contact-btn,
         .se-products-view-all,
         .se-write-review-btn,
-        .se-enquiry-submit {
-            transition: none !important;
-        }
+        .se-enquiry-submit { transition: none !important; }
 
-        .se-toast,
-        .se-toast-progress {
-            animation-duration: .01ms !important;
-        }
+        .se-toast, .se-toast-progress { animation-duration: .01ms !important; }
     }
 </style>
 @endpush
@@ -2971,7 +2499,6 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Hero carousel: wipe transition, staggered copy, tab progress drives autoplay.
         const hero = document.getElementById('hero-slider');
 
         if (hero) {
@@ -2988,9 +2515,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
 
             function loadSlideImage(index) {
                 const image = slides[index % slides.length].querySelector('.sh-slide-bg[data-src]');
-
                 if (!image) return;
-
                 image.srcset = image.dataset.srcset;
                 image.src = image.dataset.src;
                 image.removeAttribute('data-src');
@@ -3004,7 +2529,6 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
 
             function goTo(index, direction) {
                 if (slides.length < 2) return;
-
                 const next = (index + slides.length) % slides.length;
                 if (next === current) return;
 
@@ -3047,23 +2571,17 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
                 if (tabs[next]) restartAnimation(tabs[next], 'is-active');
             }
 
-            // Clean up the outgoing slide once the wipe finishes.
             slides.forEach(function(slide) {
                 slide.addEventListener('animationend', function(event) {
                     if (event.target !== slide) return;
                     slide.classList.remove('is-entering');
-                    slides.forEach(function(other) {
-                        other.classList.remove('is-prev');
-                    });
+                    slides.forEach(function(other) { other.classList.remove('is-prev'); });
                 });
             });
 
             tabs.forEach(function(tab, i) {
-                tab.addEventListener('click', function() {
-                    goTo(i, i < current ? -1 : 1);
-                });
+                tab.addEventListener('click', function() { goTo(i, i < current ? -1 : 1); });
 
-                // Autoplay: advance when the active tab's progress bar fills.
                 tab.querySelector('.sh-tab-progress span').addEventListener('animationend', function() {
                     if (tab.classList.contains('is-active')) goTo(current + 1, 1);
                 });
@@ -3082,7 +2600,6 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
             if (prevButton) prevButton.addEventListener('click', function() { goTo(current - 1, -1); });
             if (nextButton) nextButton.addEventListener('click', function() { goTo(current + 1, 1); });
 
-            // Pause while the visitor hovers, types in the form, or the tab is hidden.
             function setPaused() {
                 const paused = hero.matches(':hover') || hero.contains(document.activeElement) || document.hidden;
                 hero.classList.toggle('is-paused', paused);
@@ -3094,9 +2611,7 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
             hero.addEventListener('focusout', function() { window.setTimeout(setPaused, 0); });
             document.addEventListener('visibilitychange', setPaused);
 
-            // Swipe on touch devices (ignored inside the form).
             let touchStartX = null;
-
             hero.addEventListener('touchstart', function(event) {
                 touchStartX = event.target.closest('.sh-form-card') ? null : event.touches[0].clientX;
             }, { passive: true });
@@ -3108,7 +2623,6 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
                 touchStartX = null;
             }, { passive: true });
 
-            // "Get a Free Quote" buttons focus the hero form.
             hero.querySelectorAll('a[href="#hero-quote"]').forEach(function(link) {
                 link.addEventListener('click', function(event) {
                     event.preventDefault();
@@ -3120,7 +2634,6 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
             });
         }
 
-        // Hero quick-quote form: client checks, AJAX submit, animated success state.
         const quoteForm = document.getElementById('sh-quote-form');
 
         if (quoteForm) {
@@ -3143,19 +2656,12 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
                     message: quoteForm.elements.namedItem('message').value ? '' : 'Please choose what you are interested in.'
                 };
 
-                Object.keys(errors).forEach(function(key) {
-                    setError(key, errors[key]);
-                });
-
-                return Object.values(errors).every(function(message) {
-                    return message === '';
-                });
+                Object.keys(errors).forEach(function(key) { setError(key, errors[key]); });
+                return Object.values(errors).every(function(message) { return message === ''; });
             }
 
             quoteForm.querySelectorAll('input, select').forEach(function(input) {
-                input.addEventListener('input', function() {
-                    setError(input.name, '');
-                });
+                input.addEventListener('input', function() { setError(input.name, ''); });
             });
 
             quoteForm.addEventListener('submit', async function(event) {
@@ -3185,12 +2691,10 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
 
                     if (!response.ok) throw new Error('Request failed');
 
-                    // Keep the form on screen, emptied, with the thank-you above it.
                     quoteForm.reset();
                     success.hidden = false;
                     success.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 } catch (error) {
-                    // Fall back to a normal form post if AJAX fails.
                     HTMLFormElement.prototype.submit.call(quoteForm);
                 } finally {
                     submitButton.classList.remove('is-loading');
@@ -3198,13 +2702,9 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
                 }
             });
 
-            // The thank-you belongs to the last request; clear it once a new one starts.
-            quoteForm.addEventListener('input', function() {
-                success.hidden = true;
-            });
+            quoteForm.addEventListener('input', function() { success.hidden = true; });
         }
 
-        // Featured products: category tabs, showing at most `data-limit` cards.
         const featuredGrid = document.getElementById('se-featured-grid');
         const productTabs = Array.from(document.querySelectorAll('.se-product-tab'));
 
@@ -3214,13 +2714,10 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
 
             function filterProducts(filter) {
                 let shown = 0;
-
                 cards.forEach(function(card) {
                     const matches = filter === 'all' || card.dataset.category === filter;
                     const visible = matches && shown < limit;
-
                     card.classList.toggle('is-hidden', !visible);
-
                     if (visible) shown++;
                 });
 
@@ -3232,15 +2729,12 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
             }
 
             productTabs.forEach(function(tab) {
-                tab.addEventListener('click', function() {
-                    filterProducts(tab.dataset.filter);
-                });
+                tab.addEventListener('click', function() { filterProducts(tab.dataset.filter); });
             });
 
             filterProducts('all');
         }
 
-        // Top deals carousel arrows.
         const dealsTrack = document.getElementById('se-deals-track');
 
         if (dealsTrack) {
@@ -3249,7 +2743,6 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
 
             function updateDealButtons() {
                 const maxScroll = dealsTrack.scrollWidth - dealsTrack.clientWidth - 2;
-
                 if (prevDeal) prevDeal.disabled = dealsTrack.scrollLeft <= 2;
                 if (nextDeal) nextDeal.disabled = dealsTrack.scrollLeft >= maxScroll;
             }
@@ -3257,7 +2750,6 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
             function scrollDeals(direction) {
                 const card = dealsTrack.querySelector('.se-product-card');
                 const step = card ? card.getBoundingClientRect().width + 24 : dealsTrack.clientWidth;
-
                 dealsTrack.scrollBy({
                     left: direction * step,
                     behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
@@ -3281,24 +2773,13 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
             function closeToast() {
                 if (dismissed) return;
                 dismissed = true;
-
-                if (closeTimer !== null) {
-                    window.clearTimeout(closeTimer);
-                }
-
+                if (closeTimer !== null) window.clearTimeout(closeTimer);
                 toast.classList.add('se-toast-leaving');
-
-                window.setTimeout(function() {
-                    toast.remove();
-                }, 260);
+                window.setTimeout(function() { toast.remove(); }, 260);
             }
 
             const closeButton = toast.querySelector('.se-toast-close');
-
-            if (closeButton) {
-                closeButton.addEventListener('click', closeToast);
-            }
-
+            if (closeButton) closeButton.addEventListener('click', closeToast);
             closeTimer = window.setTimeout(closeToast, 3500);
         }
 
@@ -3307,12 +2788,8 @@ $heaterCategory = $categories->firstWhere('slug', 'solar-water-heater');
 
         if (enquirySection && hasFormErrors) {
             const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
             window.requestAnimationFrame(function() {
-                enquirySection.scrollIntoView({
-                    behavior: prefersReducedMotion ? 'auto' : 'smooth',
-                    block: 'start'
-                });
+                enquirySection.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
             });
         }
     });
