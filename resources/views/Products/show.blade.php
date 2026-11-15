@@ -197,7 +197,6 @@ $specs = array_filter([
 
             <ul class="pd-trust">
                 <li><i class="fa-solid fa-award" aria-hidden="true"></i><span>ISO 9001:2015 Certified</span></li>
-                <li><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><span>Authorised Super Solar Distributor</span></li>
                 <li><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i><span>Expert Installation</span></li>
                 <li><i class="fa-solid fa-headset" aria-hidden="true"></i><span>After-Sales Support</span></li>
             </ul>
